@@ -1,418 +1,625 @@
+<?php
+session_start();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="stylesheet" href="../styles/signup-style.css">
-    <link rel="icon" type="image/png" href="../images/QCU-logo.png">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>QCU Student Portal — Create Account</title>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/png" href="../images/QCU-logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --orange-dark:  #7a2800;
-      --orange-mid:   #c04a00;
-      --orange-light: #e06020;
-      --gold:         #c9991f;
-      --gold-hover:   #b38518;
-      --white:        #ffffff;
-      --gray-200:     #e5e7eb;
-      --gray-300:     #d1d5db;
-      --gray-400:     #9ca3af;
-      --gray-500:     #6b7280;
-      --gray-700:     #374151;
-      --gray-900:     #111827;
-      --radius-panel: 14px;
-      --radius-input: 8px;
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
+
     body {
+      font-family: 'Montserrat', sans-serif;
       min-height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #f3f0fa;
-      font-family: 'Inter', sans-serif;
-      padding: 2rem 1rem;
+      padding: 40px 20px;
     }
- 
-    .wrapper {
-      display: flex;
-      align-items: stretch;
-      gap: 20px;
+
+    /* Container with animation */
+    .auth-container {
       width: 100%;
-      max-width: 950px;
-    }
- 
-    /* ── LEFT — FORM PANEL ── */
-    .left {
-      flex: 1;
-      background: var(--white);
-      border-radius: var(--radius-panel);
-      padding: 2.6rem 2.8rem;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+      max-width: 1400px;
+      min-height: 800px;
+      background: #fff;
+      border-radius: 32px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
       display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
- 
-    .form-title {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 1.7rem;
-      font-weight: 800;
-      color: var(--gray-900);
-      margin-bottom: 4px;
-    }
-    .form-subtitle { font-size: 0.82rem; color: var(--gray-500); margin-bottom: 1.5rem; }
- 
-    .field-group { margin-bottom: 1rem; }
-    .field-label {
-      display: flex;
-      align-items: center;
-      gap: 3px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: var(--gray-700);
-      margin-bottom: 5px;
-    }
-    .req { color: #e53e3e; font-size: 0.75rem; }
- 
-    .field-hint { font-size: 0.72rem; color: var(--gray-400); margin-top: 4px; }
- 
-    .input-wrap { position: relative; display: flex; align-items: center; }
-    .field-input {
-      width: 100%;
-      padding: 9px 36px 9px 12px;
-      border: 1.5px solid var(--gray-300);
-      border-radius: var(--radius-input);
-      font-size: 0.855rem;
-      color: var(--gray-900);
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
-      font-family: 'Inter', sans-serif;
-      background: var(--white);
-    }
-    .field-input::placeholder { color: #c0c4cc; }
-    .field-input:focus { border-color: var(--orange-mid); box-shadow: 0 0 0 3px rgba(192,74,0,0.10); }
- 
-    .eye-btn {
-      position: absolute; right: 10px;
-      background: none; border: none; cursor: pointer;
-      color: var(--gray-400); display: flex; padding: 0;
-    }
-    .eye-btn svg { width: 15px; height: 15px; }
- 
-    /* Two-col row for first/last name */
-    .row-two { display: flex; gap: 12px; }
-    .row-two .field-group { flex: 1; }
- 
-    /* Terms row */
-    .terms-row {
-      display: flex;
-      align-items: flex-start;
-      gap: 8px;
-      margin-bottom: 1.2rem;
-    }
-    .terms-row input[type="checkbox"] {
-      margin-top: 2px;
-      width: 14px; height: 14px;
-      accent-color: var(--orange-mid);
-      cursor: pointer;
-      flex-shrink: 0;
-    }
-    .terms-row span { font-size: 0.78rem; color: var(--gray-700); line-height: 1.5; }
-    .terms-row a { color: var(--orange-mid); text-decoration: none; font-weight: 600; }
-    .terms-row a:hover { text-decoration: underline; }
- 
-    .btn-create {
-      width: 100%;
-      padding: 11px;
-      background: var(--gold);
-      color: var(--white);
-      border: none;
-      border-radius: var(--radius-input);
-      font-size: 0.92rem;
-      font-weight: 700;
-      font-family: 'Montserrat', sans-serif;
-      letter-spacing: 0.4px;
-      cursor: pointer;
-      transition: background 0.2s, transform 0.1s;
-    }
-    .btn-create:hover { background: var(--gold-hover); }
-    .btn-create:active { transform: scale(0.98); }
- 
-    .divider {
-      display: flex; align-items: center; gap: 10px;
-      margin: 1rem 0; color: var(--gray-400); font-size: 0.76rem;
-    }
-    .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--gray-200); }
- 
-    .btn-login {
-      width: 100%;
-      padding: 10px;
-      background: transparent;
-      color: var(--gray-900);
-      border: 1.5px solid var(--gray-900);
-      border-radius: var(--radius-input);
-      font-size: 0.92rem;
-      font-weight: 700;
-      font-family: 'Montserrat', sans-serif;
-      cursor: pointer;
-      transition: background 0.2s, color 0.2s;
-    }
-    .btn-login:hover { background: var(--gray-900); color: var(--white); }
- 
-    .back-home {
-      display: block; text-align: center; margin-top: 0.9rem;
-      font-size: 0.78rem; color: var(--gray-500); text-decoration: none;
-    }
-    .back-home:hover { color: var(--orange-mid); }
-    .back-home::before { content: '← '; }
- 
-    /* ── RIGHT — INFO PANEL ── */
-    .right {
-      flex: 0 0 38%;
-      border-radius: var(--radius-panel);
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 2.5rem 1.8rem;
       overflow: hidden;
-      color: #fff;
-      box-shadow: 0 16px 48px rgba(120,40,0,0.30);
-      /* Fallback solid bg */
-      background: linear-gradient(160deg, #c04a00 0%, #e06020 45%, #a83a00 100%);
+      position: relative;
     }
- 
-    /* Background image placeholder */
-    .right-bg {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center;
-      display: block;
-      /* Replace src="YOUR_BACKGROUND_IMAGE_HERE.png" */
+
+    /* Left Panel - Branding */
+    .brand-panel {
+      flex: 1;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      color: white;
+      padding: 60px 40px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
     }
- 
-    /* Orange overlay on top of bg image */
-    .right-overlay {
+
+    .brand-panel::before {
+      content: '';
       position: absolute;
-      inset: 0;
-      background: linear-gradient(160deg, rgba(160,50,0,0.88) 0%, rgba(210,80,10,0.82) 50%, rgba(140,36,0,0.90) 100%);
+      top: -50%;
+      right: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 80px;
+      position: relative;
       z-index: 1;
     }
-    
- 
-    .year-mark {
-      position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
-      font-family:'Montserrat',sans-serif; font-size:38px; font-weight:800;
-      color:rgba(255,255,255,0.06); letter-spacing:4px; white-space:nowrap;
-      pointer-events:none; user-select:none; z-index:2;
+
+    .logo-area img {
+      width: 60px;
+      height: 60px;
+      border-radius: 16px;
+      object-fit: cover;
     }
- 
-    /* Logo */
-    .logo-wrap { position:relative; z-index:3; margin-bottom:1rem; }
-    .logo-circle {
-      width: 88px; height: 88px; border-radius: 50%;
-      border: 3px solid rgba(255,255,255,0.6);
-      background: rgba(255,255,255,0.1);
-      overflow: hidden; display: flex; align-items: center; justify-content: center;
-    }
-    .logo-circle img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
- 
-    .right-content { position: relative; z-index: 3; text-align: center; width: 100%; }
- 
-    .join-title {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 1.55rem;
+
+    .logo-area h2 {
+      font-size: 20px;
       font-weight: 800;
-      margin-bottom: 4px;
+      letter-spacing: 1px;
     }
-    .univ-name {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 0.68rem;
-      font-weight: 700;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      opacity: 0.85;
-      margin-bottom: 1px;
+
+    .logo-area p {
+      font-size: 11px;
+      opacity: 0.7;
+      margin-top: 4px;
     }
-    .portal-label {
-      font-size: 0.65rem;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      opacity: 0.6;
-      margin-bottom: 1.6rem;
+
+    .brand-content {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
- 
-    .steps-title {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 0.85rem;
-      font-weight: 700;
-      margin-bottom: 1rem;
-      opacity: 0.95;
-    }
- 
-    .steps { list-style: none; text-align: left; display: flex; flex-direction: column; gap: 10px; }
-    .steps li { display: flex; align-items: flex-start; gap: 10px; }
- 
-    .step-num {
-      flex-shrink: 0;
-      width: 22px; height: 22px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.2);
-      display: flex; align-items: center; justify-content: center;
-      font-family: 'Montserrat', sans-serif;
-      font-size: 0.68rem;
+
+    .brand-content h1 {
+      font-size: 42px;
       font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #fff, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
-    .step-text { display: flex; flex-direction: column; }
-    .step-text strong { font-size: 0.8rem; font-weight: 700; line-height: 1.3; }
-    .step-text span { font-size: 0.7rem; opacity: 0.65; line-height: 1.3; }
- 
-    @media (max-width: 700px) {
-      .wrapper { flex-direction: column; gap: 14px; max-width: 440px; }
-      .right { flex: none; min-height: 280px; }
-      .left { padding: 2rem 1.5rem; }
+
+    .brand-content p {
+      font-size: 16px;
+      line-height: 1.6;
+      opacity: 0.8;
+      margin-bottom: 40px;
+      max-width: 80%;
+    }
+
+    .features-list {
+      list-style: none;
+    }
+
+    .features-list li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+
+    .features-list li span:first-child {
+      width: 32px;
+      height: 32px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    /* Right Panel - Forms */
+    .form-panel {
+      flex: 1.2;
+      padding: 40px 50px;
+      overflow-y: auto;
+      background: #fff;
+    }
+
+    .form-panel::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .form-panel::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 3px;
+    }
+
+    .form-panel::-webkit-scrollbar-thumb {
+      background: #c7d2fe;
+      border-radius: 3px;
+    }
+
+    /* Form Header */
+    .form-header {
+      text-align: center;
+      margin-bottom: 35px;
+    }
+
+    .form-header h2 {
+      font-size: 28px;
+      font-weight: 800;
+      color: #1f2937;
+      margin-bottom: 8px;
+    }
+
+    .form-header p {
+      color: #6b7280;
+      font-size: 14px;
+    }
+
+    /* Form Tabs (Login/Signup switcher) */
+    .form-tabs {
+      display: flex;
+      gap: 12px;
+      background: #f3f4f6;
+      padding: 6px;
+      border-radius: 60px;
+      margin-bottom: 30px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 12px 24px;
+      border: none;
+      background: transparent;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      border-radius: 60px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      color: #6b7280;
+    }
+
+    .tab-btn.active {
+      background: white;
+      color: #5b21b6;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .tab-btn:hover:not(.active) {
+      color: #5b21b6;
+    }
+
+    /* Form Container for animation */
+    .form-container {
+      position: relative;
+      min-height: 500px;
+    }
+
+    .form-wrapper {
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+
+    .form-wrapper.hidden {
+      display: none;
+    }
+
+    /* Form Styles */
+    .form-group {
+      margin-bottom: 20px;
+    }
+    /* Back to Home Button */
+/* Back to Home Button */
+.btn-back-home {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: #f3f4f6;
+  color: #4b5563;
+  text-decoration: none;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border: 1px solid #e5e7eb;
+  margin-bottom: 20px;
+}
+
+.btn-back-home:hover {
+  background: #5b21b6;
+  color: white;
+  border-color: #5b21b6;
+  transform: translateX(-3px);
+}
+
+.btn-back-home:active {
+  transform: translateX(0);
+}
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .form-row-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: #374151;
+      margin-bottom: 6px;
+      letter-spacing: 0.3px;
+    }
+
+    label .required {
+      color: #ef4444;
+      margin-left: 3px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 12px;
+      font-size: 14px;
+      font-family: inherit;
+      transition: all 0.2s;
+      background: #fff;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #5b21b6;
+      box-shadow: 0 0 0 3px rgba(91,33,182,0.1);
+    }
+
+    input.error {
+      border-color: #ef4444;
+    }
+
+    .error-message {
+      font-size: 11px;
+      color: #ef4444;
+      margin-top: 5px;
+      display: block;
+    }
+
+    .input-hint {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-top: 5px;
+    }
+
+    /* Password strength */
+    .password-strength {
+      margin-top: 8px;
+    }
+
+    .strength-bar {
+      height: 4px;
+      background: #e5e7eb;
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 5px;
+    }
+
+    .strength-fill {
+      height: 100%;
+      width: 0%;
+      transition: width 0.3s, background 0.3s;
+    }
+
+    .strength-text {
+      font-size: 11px;
+      color: #6b7280;
+    }
+
+    /* Submit Button */
+    .btn-submit {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #5b21b6, #7c3aed);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 10px;
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(91,33,182,0.3);
+    }
+
+    .btn-submit:active {
+      transform: translateY(0);
+    }
+
+    /* Footer Links */
+    .form-footer {
+      text-align: center;
+      margin-top: 25px;
+      padding-top: 20px;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .form-footer p {
+      font-size: 13px;
+      color: #6b7280;
+    }
+
+    .form-footer a {
+      color: #5b21b6;
+      text-decoration: none;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .form-footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Alert Messages */
+    .alert {
+      padding: 14px 18px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      font-size: 13px;
+    }
+
+    .alert-error {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    .alert-success {
+      background: #d1fae5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .auth-container {
+        flex-direction: column;
+        max-width: 600px;
+      }
+      
+      .brand-panel {
+        padding: 40px 30px;
+      }
+      
+      .brand-content h1 {
+        font-size: 32px;
+      }
+      
+      .brand-content p {
+        max-width: 100%;
+      }
+      
+      .form-panel {
+        padding: 30px;
+      }
+      
+      .form-row, .form-row-3 {
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 20px 15px;
+      }
+      
+      .form-panel {
+        padding: 25px 20px;
+      }
+      
+      .form-header h2 {
+        font-size: 24px;
+      }
+    }
+
+    /* Animation for form switching */
+    @keyframes slideInRight {
+      from {
+        opacity: 0;
+        transform: translateX(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes slideInLeft {
+      from {
+        opacity: 0;
+        transform: translateX(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .form-wrapper.active {
+      animation: slideInRight 0.4s ease forwards;
     }
   </style>
 </head>
 <body>
-
-<div class="wrapper">
-
-  <!-- ── LEFT — FORM ── -->
-  <div class="left">
-    <h2 class="form-title">Create Account</h2>
-    <p class="form-subtitle">Fill in your details to get started</p>
-
-    <!-- START PHP-READY FORM -->
-    <!-- action points to your PHP processing script (customize path as needed) -->
-    <!-- method="POST" keeps sensitive data like passwords out of the URL -->
-    <form action="signup-process.php" method="POST" id="signupForm" class="signup-form">
-      <!-- Student ID -->
-      <div class="field-group">
-        <label class="field-label" for="studentId">Student ID Number <span class="req">*</span></label>
-        <div class="input-wrap">
-          <!-- Added name="studentId" for PHP access -->
-          <input class="field-input" type="text" id="studentId" name="studentId" placeholder="2X-XXXX" autocomplete="off" />
-        </div>
-        <p class="field-hint">Check your admission documents or visit the Registrar's Office</p>
+<div class="auth-container">
+  <!-- Left Panel - Branding -->
+  <div class="brand-panel">
+    <div class="logo-area">
+      <img src="../images/QCU-logo.png" alt="QCU Logo" />
+      <div>
+        <h2>QCUS-PORTAL</h2>
+        <p>Quezon City University</p>
       </div>
+    </div>
+    <div class="brand-content">
+      <h1>Create Account</h1>
+      <p>Join the QCU student portal to access your academic records, schedule, grades, and more.</p>
+      <ul class="features-list">
+        <li><span>📊</span> View your grades and GPA</li>
+        <li><span>📅</span> Access class schedule</li>
+        <li><span>🪪</span> Digital Student ID</li>
+        <li><span>📝</span> Track academic progress</li>
+        <li><span>🔔</span> Stay updated with events</li>
+      </ul>
+    </div>
+  </div>
 
-      <!-- First & Last Name -->
-      <div class="row-two">
-        <div class="field-group">
-          <label class="field-label" for="firstName">First Name <span class="req">*</span></label>
-          <div class="input-wrap">
-            <!-- Added name="firstName" -->
-            <input class="field-input" type="text" id="firstName" name="firstName" placeholder="Juan" autocomplete="given-name" required/>
+  <!-- Right Panel - Forms -->
+  <div class="form-panel">
+    <div class="form-header">
+      <h2>Get Started</h2>
+      <p>Fill in your details to create your account</p>
+    </div>
+
+    <!-- Tab Switcher -->
+    <div class="form-tabs">
+      <button class="tab-btn" id="showLoginBtn">Login</button>
+      <button class="tab-btn active" id="showSignupBtn">Create Account</button>
+    </div>
+
+    <!-- Signup Form -->
+    <div id="signupForm" class="form-wrapper active">
+      <form action="signup-process.php" method="POST" onsubmit="return validateSignup()">
+        <!-- Student ID -->
+        <div class="form-group">
+          <label>Student ID Number <span class="required">*</span></label>
+          <input type="text" name="student_id" id="student_id" placeholder="25-****" required>
+          <div class="input-hint">Format: 2X-XXXX (e.g., 24-1234)</div>
+        </div>
+
+        <!-- Name Fields -->
+        <div class="form-row">
+          <div class="form-group">
+            <label>First Name <span class="required">*</span></label>
+            <input type="text" name="first_name" id="first_name" required>
+          </div>
+          <div class="form-group">
+            <label>Last Name <span class="required">*</span></label>
+            <input type="text" name="last_name" id="last_name" required>
           </div>
         </div>
-        <div class="field-group">
-          <label class="field-label" for="lastName">Last Name <span class="req">*</span></label>
-          <div class="input-wrap">
-            <!-- Added name="lastName" -->
-            <input class="field-input" type="text" id="lastName" name="lastName" placeholder="Dela Cruz" autocomplete="family-name" required/>
+
+        <div class="form-group">
+          <label>Middle Name</label>
+          <input type="text" name="middle_name" id="middle_name">
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+          <label>QCU Email Address <span class="required">*</span></label>
+          <input type="email" name="email" id="email" placeholder="your.name@qcu.edu.ph" required>
+          <div class="input-hint">Use your official school-issued email address</div>
+        </div>
+
+        <!-- Phone -->
+        <div class="form-group">
+          <label>Phone Number <span class="required">*</span></label>
+          <input type="tel" name="phone_number" id="phone_number" placeholder="+63 912 345 6789" required>
+        </div>
+
+        <!-- Address -->
+        <div class="form-group">
+          <label>Address <span class="required">*</span></label>
+          <textarea name="address" id="address" rows="2" placeholder="123 Main Street, Quezon City, Philippines" required></textarea>
+        </div>
+
+        <!-- Birthday and Gender -->
+        <div class="form-row">
+          <div class="form-group">
+            <label>Birthday <span class="required">*</span></label>
+            <input type="date" name="birthday" id="birthday" required>
+          </div>
+          <div class="form-group">
+            <label>Gender <span class="required">*</span></label>
+            <select name="gender" id="gender" required>
+              <option value="">Select your gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+              <option value="Prefer not to say">Prefer not to say</option>
+            </select>
           </div>
         </div>
-      </div>
 
-      <!-- Middle Name -->
-      <div class="field-group">
-        <label class="field-label" for="middleName">Middle Name</label>
-        <div class="input-wrap">
-          <!-- Added name="middleName" -->
-          <input class="field-input" type="text" id="middleName" name="middleName" placeholder="Santos" autocomplete="additional-name" required/>
-        </div>
-      </div>
-
-      <!-- QCU Email -->
-      <div class="field-group">
-        <label class="field-label" for="email">QCU Email Address <span class="req">*</span></label>
-        <div class="input-wrap">
-          <!-- Added name="email" -->
-          <input class="field-input" type="email" id="email" name="email" placeholder="your.name@qcu.edu.ph" autocomplete="email" />
-        </div>
-        <p class="field-hint">Use your official school-issued email address</p>
-      </div>
-
-      <!-- Phone Number -->
-      <div class="field-group">
-        <label class="field-label" for="phoneNumber">Phone Number <span class="req">*</span></label>
-        <div class="input-wrap">
-          <!-- Added name="phoneNumber" -->
-          <input class="field-input" type="tel" id="phoneNumber" name="phoneNumber" placeholder="+63 912 345 6789" autocomplete="tel" required/>
-        </div>
-      </div>
-
-      <!-- Address -->
-      <div class="field-group">
-        <label class="field-label" for="address">Address <span class="req">*</span></label>
-        <div class="input-wrap">
-          <!-- Added name="address" -->
-          <input class="field-input" type="text" id="address" name="address" placeholder="123 Main Street, Quezon City, Philippines" autocomplete="street-address" required/>
-        </div>
-      </div>
-
-      <!-- Birthday -->
-      <div class="field-group">
-        <label class="field-label" for="birthday">Birthday <span class="req">*</span></label>
-        <div class="input-wrap">
-          <!-- Added name="birthday" -->
-          <input class="field-input" type="date" id="birthday" name="birthday" autocomplete="bday" required/>
-        </div>
-      </div>
-      <div class="form-group">
-        <label for="gender">Gender</label>
-        <select class="field-input" id="gender" name="gender">
-      <option value="" disabled selected>Select your gender</option>
-      <option value="Male">Male</option>
-      <option value="Female">Female</option>
-      <option value="Non-binary">Non-binary</option>
-      <option value="Prefer not to say">Prefer not to say</option>
-      </select>
+        <!-- Course and Year Level -->
+        <div class="form-row">
+          <div class="form-group">
+            <label>Course <span class="required">*</span></label>
+            <select name="course" id="course" required>
+              <option value="">Select your course</option>
+              <option value="Bachelor of Science in Computer Science">BS Computer Science</option>
+              <option value="Bachelor of Science in Information Technology">BS Information Technology</option>
+              <option value="Bachelor of Science in Business Administration">BS Business Administration</option>
+              <option value="Bachelor of Science in Accountancy">BS Accountancy</option>
+              <option value="Bachelor of Elementary Education">Bachelor of Elementary Education</option>
+              <option value="Bachelor of Secondary Education">Bachelor of Secondary Education</option>
+              <option value="Bachelor of Science in Psychology">BS Psychology</option>
+              <option value="Bachelor of Science in Civil Engineering">BS Civil Engineering</option>
+              <option value="Bachelor of Science in Electrical Engineering">BS Electrical Engineering</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Year Level <span class="required">*</span></label>
+            <select name="year_level" id="year_level" required>
+              <option value="">Select your year level</option>
+              <option value="1st Year">1st Year</option>
+              <option value="2nd Year">2nd Year</option>
+              <option value="3rd Year">3rd Year</option>
+              <option value="4th Year">4th Year</option>
+            </select>
+          </div>
         </div>
 
-      <!-- Course Dropdown -->
-      <div class="field-group">
-        <label class="field-label" for="course">Course <span class="req">*</span></label>
-        <div class="input-wrap">
-          <!-- Added name="course" -->
-          <select class="field-input" id="course" name="course" autocomplete="off">
-            <option value="">Select your course</option>
-                  <option value="Bachelor of Science in Computer Science">Bachelor of Science in Computer Science</option>
-                  <option value="Bachelor of Science in Information Technology">Bachelor of Science in Information Technology</option>
-                  <option value="Bachelor of Science in Accountancy">Bachelor of Science in Accountancy</option>
-                  <option value="Bachelor of Science in Engineering">Bachelor of Science in Engineering</option>       
-          </select>
-        </div>
-      </div>
-
-      <!-- Year Level Dropdown -->
-      <div class="field-group">
-        <label class="field-label" for="yearLevel">Year Level <span class="req">*</span></label>
-        <div class="input-wrap">
-          <!-- Added name="yearLevel" -->
-          <select class="field-input" id="yearLevel" name="yearLevel" autocomplete="off">
-            <option value="">Select your year level</option>
-            <option value="1st Year">1st Year</option>
-            <option value="2nd Year">2nd Year</option>
-            <option value="3rd Year">3rd Year</option>
-            <option value="4th Year">4th Year</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Section Dropdown -->
-      <div class="field-group">
-        <label class="field-label" for="section">Section <span class="req">*</span></label>
-        <div class="input-wrap">
-          <!-- Added name="section" -->
-          <select class="field-input" id="section" name="section" autocomplete="off" required>
+        <!-- Section -->
+        <div class="form-group">
+          <label>Section <span class="required">*</span></label>
+          <select name="section" id="section" required>
             <option value="">Select your section</option>
             <option value="SBIT-1A">SBIT-1A</option>
             <option value="SBIT-1B">SBIT-1B</option>
@@ -422,127 +629,283 @@
             <option value="SBIT-1F">SBIT-1F</option>
           </select>
         </div>
-      </div>
 
-      <!-- Password -->
-      <div class="field-group">
-        <label class="field-label" for="password">Password <span class="req">*</span></label>
-        <div class="input-wrap">
-          <!-- Added name="password" -->
-          <input class="field-input" type="password" id="password" name="password" placeholder="Create a strong password" autocomplete="new-password" required/>
-          <button class="eye-btn" id="eyeBtn1" type="button" aria-label="Toggle password">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z"/><circle cx="8" cy="8" r="2"/></svg>
-          </button>
+        <!-- Password -->
+        <div class="form-group">
+          <label>Password <span class="required">*</span></label>
+          <input type="password" name="password" id="password" required onkeyup="checkPasswordStrength()">
+          <div class="password-strength">
+            <div class="strength-bar">
+              <div class="strength-fill" id="strengthFill"></div>
+            </div>
+            <span class="strength-text" id="strengthText"></span>
+          </div>
+          <div class="input-hint">At least 8 characters with numbers and symbols</div>
         </div>
-        <p class="field-hint">At least 8 characters with numbers and symbols</p>
-      </div>
 
-      <!-- Confirm Password -->
-      <div class="field-group">
-        <label class="field-label" for="confirmPassword">Confirm Password <span class="req">*</span></label>
-        <div class="input-wrap">
-          <!-- Added name="confirmPassword" -->
-          <input class="field-input" type="password" id="confirmPassword" name="confirmPassword" placeholder="Re-enter your password" autocomplete="new-password" required />
-          <button class="eye-btn" id="eyeBtn2" type="button" aria-label="Toggle confirm password">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z"/><circle cx="8" cy="8" r="2"/></svg>
-          </button>
+        <!-- Confirm Password -->
+        <div class="form-group">
+          <label>Confirm Password <span class="required">*</span></label>
+          <input type="password" name="confirm_password" id="confirm_password" required>
         </div>
-      </div>
 
-      <!-- Terms -->
-      <div class="terms-row">
-        <!-- Added name="terms" and value for PHP access -->
-        <input type="checkbox" id="terms" name="terms" value="agreed" required />
-        <span>I agree to the <a href="#">Terms and Conditions</a> and <a href="#">Privacy Policy</a></span>
-      </div>
+        <button type="submit" class="btn-submit">Create Account</button>
 
-      <!-- Changed type from "button" to "submit" to trigger form submission -->
-      <button class="btn-create" type="submit">Create Account</button>
-    </form>
-    <!-- END PHP-READY FORM -->
+        <div class="form-footer">
+          <p>Already have an account? <a id="switchToLogin">Login here</a></p>
 
-    <div class="divider">Already have an account?</div>
-
-    <a href="login.php">
-        <button class="btn-login" type="button">Log In</button>
+        </div>
+         </div>
+  <div style="margin-top: 15px;">
+    <a href="home.php" class="btn-back-home" style="justify-content: center; width: 100%;">
+      ← Go Back to Home Page
     </a>
-
-    <a href="home.php" class="back-home">Back to Home</a>
   </div>
-
-  <!-- ── RIGHT — INFO ── -->
-  <div class="right">
-    <!-- Replace src below with your background image path -->
-    <img class="right-bg" src="../images/QCU-background.png" alt="" />
-    <div class="right-overlay"></div>
-    <div class="ring ring-1"></div>
-    <div class="ring ring-2"></div>
-
-    <!-- Replace src below with your logo path -->
-    <div class="logo-wrap">
-      <div class="logo-circle">
-        <img src="../images/QCU-logo.png" alt="University Logo" />
-      </div>
+</div>
+</div>
+      </form>
     </div>
 
-    <div class="right-content">
-      <h1 class="join-title">Join QCU Portal!</h1>
-      <p class="univ-name">Quezon City University</p>
-      <p class="portal-label">Student Portal</p>
+    <!-- Login Form (hidden initially) -->
+    <div id="loginForm" class="form-wrapper hidden">
+      <form action="../landingpage/login.php" method="POST" onsubmit="return validateLogin()">
+        <div class="form-group">
+          <label>Student ID Number <span class="required">*</span></label>
+          <input type="text" name="student_id" id="login_student_id" placeholder="Enter your student ID" required>
+        </div>
 
-      <p class="steps-title">Get Started in 4 Steps:</p>
-      <ul class="steps">
-        <li>
-          <span class="step-num">1</span>
-          <div class="step-text">
-            <strong>Get Your Student ID</strong>
-            <span>From admission documents</span>
-          </div>
-        </li>
-        <li>
-          <span class="step-num">2</span>
-          <div class="step-text">
-            <strong>Fill the Sign-Up Form</strong>
-            <span>Enter your complete details</span>
-          </div>
-        </li>
-        <li>
-          <span class="step-num">3</span>
-          <div class="step-text">
-            <strong>Verify Your Email</strong>
-            <span>Check your QCU inbox</span>
-          </div>
-        </li>
-        <li>
-          <span class="step-num">4</span>
-          <div class="step-text">
-            <strong>Log In &amp; Explore</strong>
-            <span>Access all features</span>
-          </div>
-        </li>
-      </ul>
-    </div>
+        <div class="form-group">
+          <label>Password <span class="required">*</span></label>
+          <input type="password" name="password" id="login_password" placeholder="Enter your password" required>
+        </div>
+
+        <button type="submit" class="btn-submit">Login to Portal</button>
+
+        <div class="form-footer">
+          <p>Don't have an account? <a id="switchToSignup">Create an account</a></p>
+          <p style="margin-top: 12px;"><a href="#" style="font-size: 12px;">Forgot password?</a></p>
+        </div>
+
+        <!-- Add this button anywhere inside the form-panel div, e.g., above the form-header -->
+    <div class="form-footer">
+  <p>Don't have an account? <a id="switchToSignup">Create an account</a></p>
+  <div style="margin-top: 15px;">
+    <a href="home.php" class="btn-back-home" style="justify-content: center; width: 100%;">
+      ← Go Back to Home Page
+    </a>
   </div>
-
 </div>
 
-<!-- Fixed typo in filename: singup → signup -->
+      </form>
+    </div>
+  </div>
+</div>
+
 <script>
-    function toggleEye(btnId, inputId) {
-    const btn = document.getElementById(btnId);
-    const inp = document.getElementById(inputId);
-    const open = `<path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z"/><circle cx="8" cy="8" r="2"/>`;
-    const shut = `<line x1="1" y1="1" x2="15" y2="15"/><path d="M6.5 6.5A2 2 0 0010 10M4.2 4.2A7 7 0 001 8s2.5 5 7 5a6.9 6.9 0 003.8-1.2M9.9 3.2A7 7 0 0115 8s-.5 1-1.5 2.2"/>`;
-    let vis = false;
-    btn.addEventListener('click', () => {
-      vis = !vis;
-      inp.type = vis ? 'text' : 'password';
-      btn.querySelector('svg').innerHTML = vis ? shut : open;
+  // Form switching with animation
+  const signupForm = document.getElementById('signupForm');
+  const loginForm = document.getElementById('loginForm');
+  const showLoginBtn = document.getElementById('showLoginBtn');
+  const showSignupBtn = document.getElementById('showSignupBtn');
+  const switchToLogin = document.getElementById('switchToLogin');
+  const switchToSignup = document.getElementById('switchToSignup');
+
+  function showForm(formType) {
+    if (formType === 'login') {
+      signupForm.classList.add('hidden');
+      loginForm.classList.remove('hidden');
+      signupForm.classList.remove('active');
+      loginForm.classList.add('active');
+      showLoginBtn.classList.add('active');
+      showSignupBtn.classList.remove('active');
+    } else {
+      loginForm.classList.add('hidden');
+      signupForm.classList.remove('hidden');
+      loginForm.classList.remove('active');
+      signupForm.classList.add('active');
+      showSignupBtn.classList.add('active');
+      showLoginBtn.classList.remove('active');
+    }
+  }
+
+  showLoginBtn.addEventListener('click', () => showForm('login'));
+  showSignupBtn.addEventListener('click', () => showForm('signup'));
+  if (switchToLogin) switchToLogin.addEventListener('click', () => showForm('login'));
+  if (switchToSignup) switchToSignup.addEventListener('click', () => showForm('signup'));
+
+  // Password strength checker
+  function checkPasswordStrength() {
+    const password = document.getElementById('password').value;
+    const strengthFill = document.getElementById('strengthFill');
+    const strengthText = document.getElementById('strengthText');
+    
+    let strength = 0;
+    let message = '';
+    let color = '#ef4444';
+    let width = '0%';
+    
+    if (password.length > 0) {
+      if (password.length >= 8) strength++;
+      if (password.match(/[a-z]/)) strength++;
+      if (password.match(/[A-Z]/)) strength++;
+      if (password.match(/[0-9]/)) strength++;
+      if (password.match(/[^a-zA-Z0-9]/)) strength++;
+    }
+    
+    switch(strength) {
+      case 0:
+      case 1:
+        message = 'Weak password';
+        color = '#ef4444';
+        width = '25%';
+        break;
+      case 2:
+        message = 'Fair password';
+        color = '#f59e0b';
+        width = '50%';
+        break;
+      case 3:
+        message = 'Good password';
+        color = '#3b82f6';
+        width = '75%';
+        break;
+      case 4:
+      case 5:
+        message = 'Strong password';
+        color = '#10b981';
+        width = '100%';
+        break;
+      default:
+        message = '';
+        width = '0%';
+    }
+    
+    strengthFill.style.width = width;
+    strengthFill.style.background = color;
+    strengthText.textContent = message;
+  }
+
+  // Validate Signup Form
+  function validateSignup() {
+    let isValid = true;
+    const errors = [];
+    
+    // Student ID validation
+    const studentId = document.getElementById('student_id').value;
+    const studentIdPattern = /^\d{2}-\d{4}$/;
+    if (!studentIdPattern.test(studentId)) {
+      errors.push('Student ID must be in format: XX-XXXX (e.g., 24-1234)');
+      isValid = false;
+    }
+    
+    // Name validation
+    const firstName = document.getElementById('first_name').value.trim();
+    const lastName = document.getElementById('last_name').value.trim();
+    if (firstName.length < 2) {
+      errors.push('First name must be at least 2 characters');
+      isValid = false;
+    }
+    if (lastName.length < 2) {
+      errors.push('Last name must be at least 2 characters');
+      isValid = false;
+    }
+    
+    // Email validation
+    const email = document.getElementById('email').value;
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@qcu\.edu\.ph$/;
+    if (!emailPattern.test(email)) {
+      errors.push('Email must be a valid @qcu.edu.ph address');
+      isValid = false;
+    }
+    
+    // Phone validation
+    const phone = document.getElementById('phone_number').value;
+    const phonePattern = /^(\+63|0)[0-9]{10}$/;
+    if (!phonePattern.test(phone.replace(/[\s-]/g, ''))) {
+      errors.push('Phone number must be valid Philippine number');
+      isValid = false;
+    }
+    
+    // Password validation
+    const password = document.getElementById('password').value;
+    if (password.length < 8) {
+      errors.push('Password must be at least 8 characters');
+      isValid = false;
+    }
+    if (!password.match(/[0-9]/)) {
+      errors.push('Password must contain at least one number');
+      isValid = false;
+    }
+    if (!password.match(/[^a-zA-Z0-9]/)) {
+      errors.push('Password must contain at least one special character');
+      isValid = false;
+    }
+    
+    // Confirm password
+    const confirmPassword = document.getElementById('confirm_password').value;
+    if (password !== confirmPassword) {
+      errors.push('Passwords do not match');
+      isValid = false;
+    }
+    
+    // Course and Section validation
+    const course = document.getElementById('course').value;
+    const section = document.getElementById('section').value;
+    if (!course || course === '') {
+      errors.push('Please select a course');
+      isValid = false;
+    }
+    if (!section || section === '') {
+      errors.push('Please select a section');
+      isValid = false;
+    }
+    
+    if (!isValid) {
+      alert(errors.join('\n'));
+    }
+    
+    return isValid;
+  }
+  
+  // Validate Login Form
+  function validateLogin() {
+    const studentId = document.getElementById('login_student_id').value;
+    const password = document.getElementById('login_password').value;
+    
+    if (!studentId || studentId === '') {
+      alert('Please enter your Student ID');
+      return false;
+    }
+    if (!password || password === '') {
+      alert('Please enter your password');
+      return false;
+    }
+    return true;
+  }
+  
+  // Student ID auto-format
+  const studentIdInput = document.getElementById('student_id');
+  if (studentIdInput) {
+    studentIdInput.addEventListener('input', function(e) {
+      let value = e.target.value.replace(/[^\d]/g, '');
+      if (value.length > 2) {
+        value = value.slice(0, 2) + '-' + value.slice(2, 6);
+      }
+      e.target.value = value;
     });
   }
-  toggleEye('eyeBtn1', 'password');
-  toggleEye('eyeBtn2', 'confirmPassword');
+  
+  // Phone number auto-format
+  const phoneInput = document.getElementById('phone_number');
+  if (phoneInput) {
+    phoneInput.addEventListener('input', function(e) {
+      let value = e.target.value.replace(/[^\d+]/g, '');
+      if (value.startsWith('63')) {
+        value = '+' + value;
+      }
+      e.target.value = value;
+    });
+  }
 </script>
-
 </body>
 </html>
