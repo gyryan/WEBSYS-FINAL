@@ -14,6 +14,12 @@ mysqli_stmt_bind_param($stmt, 's', $_SESSION['student_id']);
 mysqli_stmt_execute($stmt);
 $result = mysqli_stmt_get_result($stmt);
 $user = mysqli_fetch_assoc($result);
+
+if (!$user) {
+    header('Location: ../landingpage/login.php');
+    exit;
+}
+
 $picPath = $user['profile_pic'] 
     ? '../uploads/profile_pics/' . $user['profile_pic']
     : null;
@@ -21,14 +27,108 @@ $picPath = $user['profile_pic']
 // Get initials for avatar
 $initials = strtoupper(substr($user['first_name'], 0, 1) . substr($user['last_name'], 0, 1));
 $fullName  = $user['first_name'] . ' ' . $user['last_name'];
-?>
 
+// FIRST: Ensure the student has grade records for all their scheduled courses
+// This runs automatically every time they view the page
+$ensure_grades_query = "
+    INSERT INTO grades (student_id, course_code, course_name, units, semester, school_year)
+    SELECT 
+        ? as student_id,
+        s.course_code,
+        s.course_name,
+        s.units,
+        '1st Semester',
+        '2025-2026'
+    FROM schedules s
+    WHERE s.section = ?
+    AND NOT EXISTS (
+        SELECT 1 FROM grades g 
+        WHERE g.student_id = ? 
+        AND g.course_code = s.course_code
+    )
+";
+
+$stmt = mysqli_prepare($conn, $ensure_grades_query);
+mysqli_stmt_bind_param($stmt, 'sss', $_SESSION['student_id'], $user['section'], $_SESSION['student_id']);
+mysqli_stmt_execute($stmt);
+
+// Now fetch all courses with their grades (or NULL if not graded yet)
+$grades_query = "
+    SELECT 
+        s.course_code,
+        s.course_name,
+        s.units,
+        s.day,
+        s.time,
+        s.room,
+        s.professor,
+        g.grade,
+        g.grade_point,
+        g.id as grade_id
+    FROM schedules s
+    LEFT JOIN grades g ON g.course_code = s.course_code 
+        AND g.student_id = ? 
+        AND g.semester = '1st Semester'
+        AND g.school_year = '2025-2026'
+    WHERE s.section = ?
+    ORDER BY s.course_code
+";
+
+$stmt = mysqli_prepare($conn, $grades_query);
+mysqli_stmt_bind_param($stmt, 'ss', $_SESSION['student_id'], $user['section']);
+mysqli_stmt_execute($stmt);
+$grades_result = mysqli_stmt_get_result($stmt);
+
+$grades = [];
+$total_units = 0;
+$total_points = 0;
+$has_grades = false;
+
+while ($row = mysqli_fetch_assoc($grades_result)) {
+    $grades[] = $row;
+    $total_units += $row['units'];
+    
+    // Only count towards GPA if grade exists and is valid
+    if ($row['grade_point'] && $row['grade'] && $row['grade'] != 'INC' && $row['grade'] != 'W') {
+        $total_points += $row['grade_point'] * $row['units'];
+        $has_grades = true;
+    }
+}
+
+$gpa = ($has_grades && $total_units > 0) ? number_format($total_points / $total_units, 2) : 'N/A';
+
+function getGradeColor($grade) {
+    if (!$grade || $grade == '') return '#9ca3af';
+    if ($grade == 'A' || $grade == 'A-') return '#10b981';
+    if ($grade == 'B+' || $grade == 'B' || $grade == 'B-') return '#3b82f6';
+    if ($grade == 'C+' || $grade == 'C' || $grade == 'C-') return '#f59e0b';
+    if ($grade == 'D') return '#8b5cf6';
+    if ($grade == 'F') return '#ef4444';
+    return '#6b7280';
+}
+
+function getGradeStatus($grade) {
+    if (!$grade || $grade == '') return 'Pending';
+    if ($grade == 'F') return 'Failed';
+    if ($grade == 'INC') return 'Incomplete';
+    if ($grade == 'W') return 'Withdrawn';
+    return 'Passed';
+}
+
+// Calculate completed units (with valid grades)
+$completed_units = 0;
+foreach ($grades as $grade) {
+    if ($grade['grade'] && $grade['grade'] != 'INC' && $grade['grade'] != 'W') {
+        $completed_units += $grade['units'];
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>QCU Student Portal — Grades</title>
+  <title>QCU Student Portal — My Grades</title>
   <link rel="icon" type="image/png" href="../images/QCU-logo.png" />
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
@@ -52,10 +152,9 @@ $fullName  = $user['first_name'] . ' ' . $user['last_name'];
     button { font-family: inherit; cursor: pointer; }
     a { text-decoration: none; color: inherit; }
 
-    /* ── App Shell ── */
     .app-shell { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
 
-    /* ── Sidebar ── */
+    /* Sidebar */
     .sidebar {
       background: linear-gradient(180deg,#3b0d51 0%,#14132b 100%);
       color: #f8fafc; padding: 32px 24px;
@@ -66,8 +165,8 @@ $fullName  = $user['first_name'] . ' ' . $user['last_name'];
     .nav-logo {
       width: 58px; height: 58px; border-radius: 18px; overflow: hidden;
       border: 1px solid rgba(255,255,255,.18);
-      background: rgba(255,255,255,.12); display: grid; place-items: center; font-size: 22px;
     }
+    .nav-logo img { width: 100%; height: 100%; object-fit: cover; }
     .brand-title { display: block; font-size: 16px; font-weight: 800; letter-spacing: .5px; }
     .brand-sub { display: block; color: rgba(248,250,252,.72); font-size: 12px; margin-top: 4px; }
     .sidebar-nav { display: grid; gap: 10px; }
@@ -92,10 +191,10 @@ $fullName  = $user['first_name'] . ' ' . $user['last_name'];
     }
     .logout-button:hover { background: rgba(255,255,255,.08); }
 
-    /* ── Main ── */
+    /* Main */
     .main-area { padding: 28px 32px; }
 
-    /* ── Topbar ── */
+    /* Topbar */
     .topbar {
       display: flex; flex-wrap: wrap; justify-content: space-between;
       align-items: center; gap: 24px; margin-bottom: 28px;
@@ -124,7 +223,7 @@ $fullName  = $user['first_name'] . ' ' . $user['last_name'];
     .profile-name { margin: 0; font-weight: 700; }
     .profile-email { margin: 0; color: var(--text-muted); font-size: 13px; }
 
-    /* ── Stat Cards ── */
+    /* Stat Cards */
     .stat-grid {
       display: grid; grid-template-columns: repeat(4, 1fr);
       gap: 16px; margin-bottom: 28px;
@@ -146,32 +245,7 @@ $fullName  = $user['first_name'] . ' ' . $user['last_name'];
     .stat-value { font-size: 36px; font-weight: 800; line-height: 1; margin-bottom: 6px; }
     .stat-sub { font-size: 12px; opacity: .75; }
 
-    /* ── Grade Report Header ── */
-    .report-header {
-      display: flex; justify-content: space-between; align-items: center;
-      flex-wrap: wrap; gap: 16px; margin-bottom: 18px;
-    }
-    .report-header h2 { margin: 0; font-size: 22px; font-weight: 800; }
-
-    /* ── Tabs ── */
-    .view-tabs { display: flex; gap: 4px; background: var(--surface-strong); border-radius: 14px; padding: 4px; }
-    .view-tab {
-      padding: 9px 18px; border-radius: 10px; border: none;
-      background: transparent; font-size: 13px; font-weight: 600; color: var(--text-muted);
-      transition: all .2s; display: flex; align-items: center; gap: 6px;
-    }
-    .view-tab.active { background: #fff; color: var(--text); box-shadow: 0 2px 8px rgba(15,23,42,.08); }
-    .view-tab:hover:not(.active) { color: var(--text); }
-
-    /* Semester selector */
-    .semester-select {
-      padding: 10px 14px; border-radius: 12px; border: 1.5px solid var(--border);
-      background: #fff; font-family: inherit; font-size: 13px; font-weight: 600;
-      color: var(--text); cursor: pointer; outline: none;
-    }
-    .semester-select:focus { border-color: #7c3aed; }
-
-    /* ── Table ── */
+    /* Table */
     .table-wrap { border-radius: 16px; overflow: hidden; border: 1px solid var(--border); margin-bottom: 24px; }
     table { width: 100%; border-collapse: collapse; }
     thead tr { background: #1e3a8a; color: #fff; }
@@ -179,125 +253,88 @@ $fullName  = $user['first_name'] . ' ' . $user['last_name'];
     tbody tr { border-bottom: 1px solid var(--border); transition: background .15s; }
     tbody tr:last-child { border-bottom: none; }
     tbody tr:hover { background: #f8fafc; }
-    .tfoot-row { background: #f8fafc; font-weight: 700; }
     td { padding: 14px 16px; font-size: 13px; vertical-align: middle; }
     .course-name { font-weight: 700; font-size: 14px; }
-    .course-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
-    .units-val { color: #2563eb; font-weight: 700; font-size: 15px; }
-    .totals-label { font-size: 14px; color: #475569; }
-    .totals-gpa { color: #1e40af; font-size: 18px; font-weight: 800; }
+    .units-val { color: #2563eb; font-weight: 700; }
+    .prof-name { color: var(--text-muted); }
 
-    /* Grade badge */
-    .grade-pill {
-      width: 38px; height: 38px; border-radius: 50%;
-      display: grid; place-items: center;
-      font-size: 13px; font-weight: 800; color: #fff;
+    /* Grade Badge */
+    .grade-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 48px;
+      padding: 8px 12px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 800;
+      color: white;
     }
-    .grade-A   { background: #16a34a; }
-    .grade-Bp  { background: #2563eb; }
-    .grade-B   { background: #0891b2; }
-    .grade-Cp  { background: #7c3aed; }
-    .grade-C   { background: #d97706; }
-    .grade-D   { background: #ea580c; }
-    .grade-F   { background: #dc2626; }
-
-    /* Status badge */
+    .grade-na {
+      background: #e5e7eb;
+      color: #6b7280;
+    }
+    .grade-small {
+      font-size: 11px;
+      font-weight: 600;
+      margin-top: 4px;
+    }
     .status-pill {
-      padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
     }
-    .status-passed { background: #dcfce7; color: #15803d; }
-    .status-failed { background: #fee2e2; color: #b91c1c; }
-    .status-inc    { background: #fef3c7; color: #92400e; }
+    .status-passed { background: #d1fae5; color: #065f46; }
+    .status-failed { background: #fee2e2; color: #991b1b; }
+    .status-pending { background: #fef3c7; color: #92400e; }
 
-    /* ── Grading Scale ── */
-    .scale-title { font-size: 16px; font-weight: 700; margin: 0 0 14px; }
-    .scale-grid {
-      display: grid; grid-template-columns: repeat(8, 1fr); gap: 8px;
-    }
-    .scale-item {
-      border-radius: 12px; padding: 12px 8px; text-align: center;
-      border: 1px solid var(--border);
-    }
-    .scale-letter { font-size: 20px; font-weight: 800; }
-    .scale-range  { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
-    .scale-desc   { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
-    .scale-A  { background: #f0fdf4; } .scale-A .scale-letter  { color: #16a34a; }
-    .scale-Bp { background: #eff6ff; } .scale-Bp .scale-letter { color: #2563eb; }
-    .scale-B  { background: #ecfeff; } .scale-B .scale-letter  { color: #0891b2; }
-    .scale-Cp { background: #f5f3ff; } .scale-Cp .scale-letter { color: #7c3aed; }
-    .scale-C  { background: #fffbeb; } .scale-C .scale-letter  { color: #d97706; }
-    .scale-D  { background: #fff7ed; } .scale-D .scale-letter  { color: #ea580c; }
-    .scale-F  { background: #fef2f2; } .scale-F .scale-letter  { color: #dc2626; }
-    .scale-INC { background: #f8fafc; } .scale-INC .scale-letter { color: #64748b; }
-
-    /* ── Action Buttons ── */
-    .action-bar {
-      display: grid; grid-template-columns: 1fr 1fr 1fr;
-      gap: 12px; margin-top: 24px;
-    }
-    .action-btn {
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-      padding: 15px; border-radius: 14px; font-size: 14px; font-weight: 700;
-      border: none; transition: transform .2s, box-shadow .2s;
-    }
-    .action-btn:hover { transform: translateY(-2px); }
-    .btn-pdf {
-      background: linear-gradient(135deg,#d97706,#b45309); color: #fff;
-      box-shadow: 0 4px 14px rgba(180,83,9,.25);
-    }
-    .btn-pdf:hover { box-shadow: 0 8px 20px rgba(180,83,9,.35); }
-    .btn-email {
-      background: #fff; color: var(--text);
-      border: 1.5px solid var(--border) !important;
-    }
-    .btn-email:hover { border-color: #7c3aed !important; color: #7c3aed; }
-    .btn-past {
-      background: #fff; color: var(--text);
-      border: 1.5px solid var(--border) !important;
-    }
-    .btn-past:hover { border-color: #7c3aed !important; color: #7c3aed; }
-
-    /* ── Weekly View Unavailable ── */
-    .weekly-unavailable {
-      background: #fff; border: 1.5px dashed #cbd5e1;
-      border-radius: 20px; padding: 48px 24px;
-      text-align: center; display: none;
-    }
-    .weekly-unavailable.show { display: block; }
-    .weekly-icon { font-size: 48px; margin-bottom: 16px; }
-    .weekly-unavailable h3 { margin: 0 0 10px; font-size: 20px; }
-    .weekly-unavailable p { margin: 0; color: var(--text-muted); font-size: 14px; line-height: 1.7; }
-    .coming-soon-badge {
-      display: inline-block; margin-top: 16px;
-      padding: 6px 16px; border-radius: 20px;
-      background: #fef3c7; color: #92400e; font-size: 12px; font-weight: 700;
-    }
-
-    /* ── Card wrapper ── */
+    /* Card */
     .card {
       background: var(--surface); border: 1px solid var(--border);
       border-radius: 24px; box-shadow: 0 4px 24px rgba(15,23,42,.05);
       padding: 24px;
     }
+    .card-header {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 20px;
+    }
+    .card-header h2 { margin: 0; font-size: 20px; font-weight: 800; }
+    .card-header-icon { font-size: 20px; }
 
-    /* ── Responsive ── */
+    /* GPA Card */
+    .gpa-card {
+      background: linear-gradient(135deg, #eef2ff, #f5f3ff);
+      border-radius: 20px;
+      padding: 24px;
+      text-align: center;
+    }
+    .gpa-value {
+      font-size: 48px;
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1;
+    }
+    .gpa-label {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+
+    /* Responsive */
     @media (max-width: 1100px) {
       .app-shell { grid-template-columns: 1fr; }
       .sidebar { position: static; height: auto; flex-direction: row; flex-wrap: wrap; gap: 12px; padding: 16px 20px; }
       .sidebar-nav { flex-direction: row; flex-wrap: wrap; }
       .sidebar-footer { margin-top: 0; }
       .stat-grid { grid-template-columns: repeat(2,1fr); }
-      .scale-grid { grid-template-columns: repeat(4,1fr); }
-      .action-bar { grid-template-columns: 1fr; }
     }
     @media (max-width: 760px) {
       .main-area { padding: 20px 14px; }
-      .stat-grid { grid-template-columns: 1fr 1fr; }
-      .scale-grid { grid-template-columns: repeat(4,1fr); }
+      .stat-grid { grid-template-columns: 1fr; }
       .table-wrap { overflow-x: auto; }
       table { min-width: 700px; }
     }
-    .nav-logo img { width: 100%; height: 100%; object-fit: cover; }
   </style>
 </head>
 <body>
@@ -315,12 +352,12 @@ $fullName  = $user['first_name'] . ' ' . $user['last_name'];
       </div>
     </div>
     <nav class="sidebar-nav" aria-label="Dashboard navigation">
-      <a href="dashboard.php"    class="nav-item"><span class="nav-item-icon">🏠</span>Dashboard</a>
-      <a href="events.php"       class="nav-item"><span class="nav-item-icon">📅</span>Events</a>
+      <a href="dashboard.php" class="nav-item"><span class="nav-item-icon">🏠</span>Dashboard</a>
+      <a href="events.php" class="nav-item"><span class="nav-item-icon">📅</span>Events</a>
       <a href="SchoolSched.php" class="nav-item"><span class="nav-item-icon">📋</span>Schedule</a>
-      <a href="grades.php"       class="nav-item active"><span class="nav-item-icon">📝</span>Grades</a>
-      <a href="digital-id.php"   class="nav-item"><span class="nav-item-icon">🪪</span>Digital ID</a>
-      <a href="account.php"      class="nav-item"><span class="nav-item-icon">👤</span>Account</a>
+      <a href="grades.php" class="nav-item active"><span class="nav-item-icon">📝</span>Grades</a>
+      <a href="digital-id.php" class="nav-item"><span class="nav-item-icon">🪪</span>Digital ID</a>
+      <a href="account.php" class="nav-item"><span class="nav-item-icon">👤</span>Account</a>
     </nav>
     <div class="sidebar-footer">
         <button type="button" class="logout-button" onclick="window.location.href='../landingpage/logout.php'">Logout</button>
@@ -331,12 +368,12 @@ $fullName  = $user['first_name'] . ' ' . $user['last_name'];
   <main class="main-area">
     <header class="topbar">
       <div>
-        <p class="user-greeting">Welcome back, Student!</p>
-        <h1 class="page-title">Grades</h1>
+        <p class="user-greeting">Welcome back, <?= htmlspecialchars($fullName) ?>!</p>
+        <h1 class="page-title">My Grades</h1>
       </div>
       <div class="topbar-right">
         <button type="button" class="chatbot-btn" title="AI Assistant" onclick="alert('Chatbot coming soon!')">🤖</button>
-       <div class="profile-card">
+        <div class="profile-card">
           <div class="profile-avatar" style="width: 80px; height: 80px; border-radius: 50%; overflow: hidden;">
             <?php if ($picPath): ?>
               <img src="<?= htmlspecialchars($picPath) ?>" alt="Profile Picture" style="width:100%; height:100%; object-fit:cover;" />
@@ -352,221 +389,156 @@ $fullName  = $user['first_name'] . ' ' . $user['last_name'];
       </div>
     </header>
 
-    <!-- Stat Cards -->
+    <!-- Academic Statistics -->
     <div class="stat-grid">
       <div class="stat-card blue">
         <div class="stat-label">Current GPA</div>
-        <div class="stat-value">1.50</div>
-        <div class="stat-sub">Grade Point Average</div>
+        <div class="stat-value"><?= $gpa ?></div>
+        <div class="stat-sub">
+          <?php 
+            if ($gpa !== 'N/A') {
+                echo $gpa >= 3.0 ? 'Excellent Standing' : ($gpa >= 2.0 ? 'Good Standing' : 'Academic Attention');
+            } else {
+                echo 'No grades yet';
+            }
+          ?>
+        </div>
       </div>
       <div class="stat-card green">
         <div class="stat-label">Total Units</div>
-        <div class="stat-value">16</div>
-        <div class="stat-sub">Units Completed</div>
+        <div class="stat-value"><?= $total_units ?></div>
+        <div class="stat-sub">Enrolled this semester</div>
       </div>
       <div class="stat-card amber">
-        <div class="stat-label">Subjects</div>
-        <div class="stat-value">6</div>
-        <div class="stat-sub">Total Enrolled</div>
+        <div class="stat-label">Courses Taken</div>
+        <div class="stat-value"><?= count($grades) ?></div>
+        <div class="stat-sub">Current semester</div>
       </div>
       <div class="stat-card purple">
-        <div class="stat-label">Status</div>
-        <div class="stat-value" style="font-size:26px;">All Passed</div>
-        <div class="stat-sub">Semester Status</div>
+        <div class="stat-label">Year Level</div>
+        <div class="stat-value" style="font-size: 28px;"><?= htmlspecialchars($user['year_level']) ?></div>
+        <div class="stat-sub"><?= htmlspecialchars($user['course']) ?></div>
       </div>
     </div>
 
     <!-- Grade Report -->
     <div class="card">
-      <div class="report-header">
-        <h2>Grade Report</h2>
-        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
-          <!-- View toggle: Table | Weekly -->
-          <div class="view-tabs">
-          </div>
-          <select class="semester-select" id="semesterSelect" onchange="changeSemester(this.value)">
-            <option value="1st-2526">1st Semester 2025-2026</option>
-            <option value="2nd-2526">2nd Semester 2025-2026</option>
-          </select>
-        </div>
+      <div class="card-header">
+        <span class="card-header-icon">📊</span>
+        <h2>Grade Report - 1st Semester, AY 2025-2026</h2>
       </div>
 
-      <!-- Table View -->
-      <div id="tableView">
-        <div class="table-wrap">
-          <?php if (!$studentSection): ?>
-            <div style="padding: 48px 24px; text-align: center; color: #64748b;">
-              <div style="font-size: 48px; margin-bottom: 12px;">🏷️</div>
-              <h3 style="margin: 0 0 8px; font-size: 18px; font-weight: 800; color: #1f2937;">No Section Assigned</h3>
-              <p style="margin: 0; font-size: 14px; line-height: 1.7;">
-                You have not been assigned to a section yet.<br>
-                Please wait for your admin to assign your section, or contact the Registrar's Office.
-              </p>
-            </div>
-          <?php elseif (empty($scheduleRows)): ?>
-            <div style="padding: 48px 24px; text-align: center; color: #64748b;">
-              <div style="font-size: 48px; margin-bottom: 12px;">📋</div>
-              <h3 style="margin: 0 0 8px; font-size: 18px; font-weight: 800; color: #1f2937;">No Schedule Yet for <?= htmlspecialchars($studentSection) ?></h3>
-              <p style="margin: 0; font-size: 14px; line-height: 1.7;">
-                Your section's schedule has not been uploaded yet.<br>
-                Please check back later or contact your department.
-              </p>
-            </div>
-          <?php else: ?>
-          <table>
-            <thead>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Course Code</th>
+              <th>Course Name</th>
+              <th>Units</th>
+              <th>Schedule</th>
+              <th>Professor</th>
+              <th>Grade</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php if (empty($grades)): ?>
               <tr>
-                <th>Course</th>
-                <th>Units</th>
-                <th>Schedule</th>
-                <th>Grade</th>
-                <th>Numeric</th>
-                <th>Status</th>
-                <th>Professor</th>
+                <td colspan="7" style="text-align: center; padding: 60px;">
+                  <p>No courses found in your schedule.</p>
+                  <p style="color: var(--text-muted);">Please contact the registrar if you believe this is an error.</p>
+                </td>
               </tr>
-            </thead>
-            <tbody id="gradesBody"></tbody>
-             <?php foreach ($scheduleRows as $course): ?>
-              <tr>
-                <td><span class="course"><?= htmlspecialchars($course['course']) ?></span></td>
-                <td class="course-name-cell"><?= htmlspecialchars($course['course_name']) ?></td>
-                <td><span class="section-pill" style="font-size:<?= strlen($course['section']) > 2 ? '9px' : '12px' ?>;"><?= htmlspecialchars($course['section']) ?></span></td>
-                <td><span class="units-val"><?= htmlspecialchars($course['units']) ?></span></td>
-                <td class="day-cell"><?= htmlspecialchars($course['day']) ?></td>
-                <td class="time-cell"><?= htmlspecialchars($course['time']) ?></td>
-                <td class="room-cell"><?= htmlspecialchars($course['room']) ?></td>
-                <td class="prof-cell"><?= htmlspecialchars($course['professor']) ?></td>
-              </tr>
+            <?php else: ?>
+              <?php foreach ($grades as $grade): ?>
+                <?php
+                  $status = getGradeStatus($grade['grade']);
+                  $statusClass = $status == 'Passed' ? 'status-passed' : ($status == 'Failed' ? 'status-failed' : 'status-pending');
+                  $gradeColor = getGradeColor($grade['grade']);
+                  $hasGrade = !empty($grade['grade']) && $grade['grade'] != '';
+                  $schedule_info = '';
+                  if (!empty($grade['day']) && !empty($grade['time'])) {
+                      $schedule_info = htmlspecialchars($grade['day']) . ', ' . htmlspecialchars($grade['time']);
+                      if (!empty($grade['room'])) {
+                          $schedule_info .= ' • ' . htmlspecialchars($grade['room']);
+                      }
+                  } else {
+                      $schedule_info = 'Schedule TBA';
+                  }
+                ?>
+                <tr>
+                  <td class="course-name"><?= htmlspecialchars($grade['course_code']) ?></td>
+                  <td>
+                    <?= htmlspecialchars($grade['course_name']) ?>
+                    <div class="grade-small" style="color: var(--text-muted);"></div>
+                  </td>
+                  <td class="units-val"><?= $grade['units'] ?></td>
+                  <td class="prof-name"><?= $schedule_info ?></td>
+                  <td class="prof-name"><?= htmlspecialchars($grade['professor'] ?? 'TBA') ?></td>
+                  <td>
+                    <?php if ($hasGrade): ?>
+                      <div class="grade-badge" style="background: <?= $gradeColor ?>;">
+                        <?= htmlspecialchars($grade['grade']) ?>
+                      </div>
+                      <?php if ($grade['grade_point']): ?>
+                        <div class="grade-small">(<?= number_format($grade['grade_point'], 2) ?>)</div>
+                      <?php endif; ?>
+                    <?php else: ?>
+                      <div class="grade-badge grade-na">
+                        N/A
+                      </div>
+                      <div class="grade-small">Not yet graded</div>
+                    <?php endif; ?>
+                  </td>
+                  <td>
+                    <span class="status-pill <?= $statusClass ?>"><?= $status ?></span>
+                  </td>
+                </tr>
               <?php endforeach; ?>
-            </tbody>
-            <tfoot>
-              <tr class="total-row">
-                <td colspan="3" style="text-align:right;color:#475569;">Total Units:</td>
-                <td><span class="total-units-val"><?= $totalUnits ?></span></td>
-                <td colspan="4"></td>
-              </tr>
-            </tfoot>
-          </table>
-          <?php endif; ?>
-        </div>
-      </div>
-
-      <!-- Weekly View Unavailable -->
-      <div class="weekly-unavailable" id="weeklyView">
-        <div class="weekly-icon">🗓️</div>
-        <h3>Weekly View Coming Soon</h3>
-        <p>The weekly schedule view is currently under development.<br>Please use the Table View to check your grades for now.</p>
-        <span class="coming-soon-badge">🚧 Under Development</span>
+            <?php endif; ?>
+          </tbody>
+          <tfoot>
+            <tr style="background: #f8fafc; font-weight: 700;">
+              <td colspan="2" style="text-align: right;">Totals:</td>
+              <td class="units-val"><?= $total_units ?></td>
+              <td colspan="4"></td>
+            </tr>
+            <?php if ($has_grades): ?>
+            <tr style="background: #f8fafc;">
+              <td colspan="2" style="text-align: right;">GPA (Grade Point Average):</td>
+              <td colspan="5">
+                <span style="font-size: 24px; font-weight: 800; color: #4c1d95;"><?= $gpa ?></span>
+                <span style="margin-left: 12px; font-size: 13px; color: var(--text-muted);">
+                  <?php
+                    if ($gpa >= 3.5) echo '🏆 President\'s Lister';
+                    elseif ($gpa >= 3.0) echo '⭐ Dean\'s Lister';
+                    elseif ($gpa >= 2.5) echo '✅ Good Standing';
+                    elseif ($gpa >= 2.0) echo '⚠️ Satisfactory';
+                    else echo '📚 Needs Improvement';
+                  ?>
+                </span>
+              </td>
+            </tr>
+            <?php endif; ?>
+          </tfoot>
+        </table>
       </div>
 
       <!-- Grading Scale -->
-      <div style="margin-top:24px;">
-        <p class="scale-title">QCU Grading Scale</p>
-        <div class="scale-grid">
-          <div class="scale-item scale-A">
-            <div class="scale-letter">A</div>
-            <div class="scale-range">1.00 – 1.25</div>
-            <div class="scale-desc">Excellent</div>
-          </div>
-          <div class="scale-item scale-Bp">
-            <div class="scale-letter">B+</div>
-            <div class="scale-range">1.50 – 1.75</div>
-            <div class="scale-desc">Very Good</div>
-          </div>
-          <div class="scale-item scale-B">
-            <div class="scale-letter">B</div>
-            <div class="scale-range">2.00 – 2.25</div>
-            <div class="scale-desc">Good</div>
-          </div>
-          <div class="scale-item scale-Cp">
-            <div class="scale-letter">C+</div>
-            <div class="scale-range">2.50 – 2.75</div>
-            <div class="scale-desc">Satisfactory</div>
-          </div>
-          <div class="scale-item scale-C">
-            <div class="scale-letter">C</div>
-            <div class="scale-range">3.00</div>
-            <div class="scale-desc">Passing</div>
-          </div>
-          <div class="scale-item scale-D">
-            <div class="scale-letter">D</div>
-            <div class="scale-range">4.00</div>
-            <div class="scale-desc">Conditional</div>
-          </div>
-          <div class="scale-item scale-F">
-            <div class="scale-letter">F</div>
-            <div class="scale-range">5.00</div>
-            <div class="scale-desc">Failed</div>
-          </div>
-          <div class="scale-item scale-INC">
-            <div class="scale-letter">INC</div>
-            <div class="scale-range">—</div>
-            <div class="scale-desc">Incomplete</div>
-          </div>
+      <div style="margin-top: 24px;">
+        <h3 style="font-size: 14px; margin-bottom: 12px;">Grading Scale</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 8px;">
+          <div style="padding: 8px; background: #f0fdf4; border-radius: 8px; text-align: center;"><strong style="color: #16a34a;">A</strong><br><small>4.00</small></div>
+          <div style="padding: 8px; background: #eff6ff; border-radius: 8px; text-align: center;"><strong style="color: #2563eb;">B+ / B / B-</strong><br><small>3.30 - 2.70</small></div>
+          <div style="padding: 8px; background: #fffbeb; border-radius: 8px; text-align: center;"><strong style="color: #d97706;">C+ / C / C-</strong><br><small>2.30 - 1.70</small></div>
+          <div style="padding: 8px; background: #fef2f2; border-radius: 8px; text-align: center;"><strong style="color: #dc2626;">D / F</strong><br><small>1.00 / 0.00</small></div>
         </div>
-      </div>
-
-      <!-- Action Buttons -->
-      <div class="action-bar">
-        <button type="button" class="action-btn btn-pdf">📄 Download Grade Report (PDF)</button>
-        <button type="button" class="action-btn btn-email" style="border:1.5px solid var(--border);">✉️ Email Grade Report</button>
-        <button type="button" class="action-btn btn-past"  style="border:1.5px solid var(--border);">🕐 View Past Semesters</button>
+        <p style="font-size: 11px; color: var(--text-muted); margin-top: 12px; text-align: center;">
+          * Grades marked as "N/A" are still pending. Please check back later or contact your instructor.
+        </p>
       </div>
     </div>
   </main>
 </div>
-
-<script>
-  /* ── Grade data per semester ── */
-  const gradeClasses = { A:"grade-A", "B+":"grade-Bp", B:"grade-B", "C+":"grade-Cp", C:"grade-C", D:"grade-D", F:"grade-F" };
-
-  function renderGrades(semKey) {
-    const data = semesters[semKey];
-    const body = document.getElementById("gradesBody");
-    let totalUnits = 0;
-    body.innerHTML = data.courses.map(c => {
-      totalUnits += c.units;
-      const gc = gradeClasses[c.grade] || "grade-A";
-      return `
-        <tr>
-          <td>
-            <div class="course-name">${c.code}</div>
-            <div class="course-sub">${c.name}</div>
-          </td>
-          <td><span class="units-val">${c.units}</span></td>
-          <td style="color:var(--text-muted);font-size:12px;">${c.sched}</td>
-          <td><span class="grade-pill ${gc}">${c.grade}</span></td>
-          <td style="font-weight:600;">${c.numeric}</td>
-          <td><span class="status-pill status-${c.status.toLowerCase()}">${c.status}</span></td>
-          <td style="color:var(--text-muted);font-size:12px;">${c.prof}</td>
-        </tr>`;
-    }).join("");
-    document.getElementById("totalUnits").textContent = totalUnits;
-    document.getElementById("semesterGpa").textContent = data.gpa;
-  }
-
-  function changeSemester(val) { renderGrades(val); }
-
-  function switchView(view) {
-    const tableView  = document.getElementById("tableView");
-    const weeklyView = document.getElementById("weeklyView");
-    const tabTable   = document.getElementById("tabTable");
-    const tabWeekly  = document.getElementById("tabWeekly");
-    if (view === "table") {
-      tableView.style.display = "block";
-      weeklyView.classList.remove("show");
-      tabTable.classList.add("active");
-      tabWeekly.classList.remove("active");
-    } else {
-      tableView.style.display = "none";
-      weeklyView.classList.add("show");
-      tabTable.classList.remove("active");
-      tabWeekly.classList.add("active");
-    }
-  }
-
-  /* ── Init ── */
-  renderGrades("1st-2526");
-</script>
 </body>
 </html>
