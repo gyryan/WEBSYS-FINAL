@@ -509,13 +509,7 @@ foreach ($grades as $grade) {
               <td colspan="5">
                 <span style="font-size: 24px; font-weight: 800; color: #4c1d95;"><?= $gpa ?></span>
                 <span style="margin-left: 12px; font-size: 13px; color: var(--text-muted);">
-                  <?php
-                    if ($gpa >= 3.5) echo '🏆 President\'s Lister';
-                    elseif ($gpa >= 3.0) echo '⭐ Dean\'s Lister';
-                    elseif ($gpa >= 2.5) echo '✅ Good Standing';
-                    elseif ($gpa >= 2.0) echo '⚠️ Satisfactory';
-                    else echo '📚 Needs Improvement';
-                  ?>
+                  
                 </span>
               </td>
             </tr>
