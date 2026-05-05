@@ -16,7 +16,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $course = mysqli_real_escape_string($conn, $_POST['course']);
     $year_level = mysqli_real_escape_string($conn, $_POST['year_level']);
     $section = mysqli_real_escape_string($conn, $_POST['section']);
-    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+    $plain_password = $_POST['password'];
+    $password = password_hash($plain_password, PASSWORD_DEFAULT);
     
     // Check if student already exists
     $check_query = "SELECT student_id FROM students WHERE student_id = '$student_id' OR email = '$email'";
@@ -37,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header('Location: ../landingpage/login.php');
         exit;
     } else {
-        $_SESSION['signup_error'] = 'Registration failed. Please try again.';
+        $_SESSION['signup_error'] = 'Registration failed: ' . mysqli_error($conn);
         header('Location: sign-up.php');
         exit;
     }
