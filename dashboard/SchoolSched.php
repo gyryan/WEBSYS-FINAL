@@ -432,7 +432,7 @@ if ($studentSection) {
       <!-- Weekly View — Temporarily Unavailable -->
       <div class="weekly-unavailable" id="weeklyView">
         <div class="weekly-icon">🗓️</div>
-        <h3>Weekly View Coming Soon</h3>
+        <h3>REGESTRATION FORM</h3>
         <p>The weekly schedule view is currently under development.<br>Please use the List View to see your class schedule for now.</p>
         <span class="coming-soon-badge">🚧 Under Development</span>
       </div>

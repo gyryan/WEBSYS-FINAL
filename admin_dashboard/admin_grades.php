@@ -157,3 +157,406 @@ function calculateGPA($courses) {
       padding: 14px 18px; border: none; background: transparent;
       color: #f8fafc; font-size: 14px; border-radius: 14px;
       transition: background .2s, transform .2s;
+    }
+    .nav-item-icon {
+      width: 34px; height: 34px; display: grid; place-items: center;
+      border-radius: 12px; background: rgba(255,255,255,.08); font-size: 16px;
+    }
+    .nav-item:hover, .nav-item.active { background: rgba(255,255,255,.08); transform: translateX(2px); }
+    .nav-item:hover .nav-item-icon, .nav-item.active .nav-item-icon { background: rgba(255,255,255,.18); }
+    .sidebar-footer { margin-top: auto; }
+    .logout-button {
+      width: 100%; padding: 14px 18px;
+      border: 1px solid rgba(255,255,255,.18); border-radius: 14px;
+      background: transparent; color: #f8fafc; font-size: 14px; font-weight: 600;
+      transition: background .2s;
+    }
+    .logout-button:hover { background: rgba(255,255,255,.08); }
+
+    .main-area { padding: 28px 32px; }
+
+    .topbar {
+      display: flex; flex-wrap: wrap; justify-content: space-between;
+      align-items: center; gap: 24px; margin-bottom: 28px;
+    }
+    .page-title { margin: 0; font-size: clamp(22px,3vw,28px); font-weight: 800; }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 24px; box-shadow: 0 4px 24px rgba(15,23,42,.05);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .card-header {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 20px;
+    }
+    .card-header h2 { margin: 0; font-size: 20px; font-weight: 800; }
+    .card-header-icon { font-size: 20px; }
+
+    .search-section {
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+      flex-wrap: wrap;
+    }
+    .search-group {
+      flex: 1;
+      min-width: 250px;
+    }
+    .search-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .search-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      font-size: 14px;
+      font-family: inherit;
+      transition: border-color .2s;
+    }
+    .search-input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .btn-primary {
+      padding: 12px 24px;
+      background: linear-gradient(135deg, var(--accent), #6d28d9);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 14px;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 14px rgba(91,33,182,.25);
+    }
+    .btn-secondary {
+      padding: 12px 24px;
+      background: #fff;
+      color: var(--text);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all .2s;
+    }
+    .btn-secondary:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .table-wrap {
+      border-radius: 16px;
+      overflow-x: auto;
+      border: 1px solid var(--border);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 600px;
+    }
+    thead tr {
+      background: linear-gradient(135deg, #1e3a8a, #1d4ed8);
+      color: #fff;
+    }
+    thead th {
+      padding: 14px 16px;
+      text-align: left;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background .15s;
+    }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #f8fafc; }
+    td {
+      padding: 14px 16px;
+      font-size: 13px;
+      vertical-align: middle;
+    }
+    .course-code { font-weight: 700; color: #1d4ed8; }
+    .units-val { font-weight: 700; color: #d97706; }
+
+    .grade-select {
+      padding: 8px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 13px;
+      font-family: inherit;
+      background: #fff;
+      cursor: pointer;
+    }
+    .grade-select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .student-info {
+      background: linear-gradient(135deg, #eef2ff, #f5f3ff);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .student-details h3 {
+      margin: 0 0 4px;
+      font-size: 18px;
+    }
+    .student-details p {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+    .gpa-card {
+      text-align: right;
+    }
+    .gpa-value {
+      font-size: 36px;
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1;
+    }
+    .gpa-label {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .alert {
+      padding: 14px 18px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+    .alert-success {
+      background: #d1fae5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+    .alert-error {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    .student-list {
+      display: grid;
+      gap: 8px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .student-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      transition: all .2s;
+    }
+    .student-item:hover {
+      background: var(--surface-strong);
+    }
+    .student-item a {
+      font-weight: 600;
+      color: var(--accent);
+    }
+    .badge-na {
+      background: #e5e7eb;
+      color: #6b7280;
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-size: 12px;
+    }
+
+    @media (max-width: 1100px) {
+      .app-shell { grid-template-columns: 1fr; }
+      .sidebar { position: static; height: auto; }
+    }
+    @media (max-width: 760px) {
+      .main-area { padding: 20px 14px; }
+    }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="nav-logo">
+        <img src="../images/QCU-logo.png" alt="QCU Logo" />
+      </div>
+      <div>
+        <span class="brand-title">QCUS-PORTAL</span>
+        <span class="brand-sub">Admin Dashboard</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav" aria-label="Dashboard navigation">
+      <a href="admin_dashboard.php"    class="nav-item"><span class="nav-item-icon">🏠</span>Admin Dashboard</a>
+      <a href="admin_events.php"       class="nav-item"><span class="nav-item-icon">📅</span>Add Events</a>
+      <a href="admin_sched.php"        class="nav-item"><span class="nav-item-icon">📋</span>Add Schedule</a>
+      <a href="admin_grades.php"       class="nav-item active"><span class="nav-item-icon">📝</span>Add Grades</a>
+      <a href="admin_account.php"      class="nav-item"><span class="nav-item-icon">👤</span>Account</a>
+    </nav>
+    <div class="sidebar-footer"> 
+        <button type="button" class="logout-button" onclick="window.location.href='../landingpage/logout.php'">Logout</button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main-area">
+    <header class="topbar">
+      <h1 class="page-title">Grade Management</h1>
+      <div class="topbar-right">
+        <button type="button" class="chatbot-btn" title="AI Assistant" onclick="alert('Chatbot coming soon!')">🤖</button>
+      </div>
+    </header>
+
+    <?php if (isset($_SESSION['message'])): ?>
+      <div class="alert alert-success"><?= htmlspecialchars($_SESSION['message']) ?></div>
+      <?php unset($_SESSION['message']); ?>
+    <?php endif; ?>
+    <?php if (isset($_SESSION['error'])): ?>
+      <div class="alert alert-error"><?= htmlspecialchars($_SESSION['error']) ?></div>
+      <?php unset($_SESSION['error']); ?>
+    <?php endif; ?>
+
+    <!-- Search Student Card -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-header-icon">🔍</span>
+        <h2>Find Student</h2>
+      </div>
+      <div class="search-section">
+        <form method="GET" action="admin_grades.php" style="display: flex; gap: 12px; flex: 1; flex-wrap: wrap;">
+          <div class="search-group">
+            <label>Student ID</label>
+            <input type="text" name="student_id" class="search-input" placeholder="Enter Student ID" value="<?= htmlspecialchars($search_student_id) ?>">
+          </div>
+          <button type="submit" class="btn-primary">🔍 Search</button>
+          <button type="button" class="btn-secondary" onclick="window.location.href='admin_grades.php'">Clear</button>
+        </form>
+      </div>
+    </div>
+
+    <?php if ($search_student_id && !$student_data): ?>
+      <div class="alert alert-error">Student not found. Please check the Student ID and try again.</div>
+    <?php endif; ?>
+
+    <?php if ($student_data): ?>
+      <!-- Student Information -->
+      <div class="student-info">
+        <div class="student-details">
+          <h3><?= htmlspecialchars($student_data['first_name'] . ' ' . $student_data['last_name']) ?></h3>
+          <p>Student ID: <?= htmlspecialchars($student_data['student_id']) ?> | Course: <?= htmlspecialchars($student_data['course']) ?> | Section: <?= htmlspecialchars($student_data['section']) ?></p>
+        </div>
+        <div class="gpa-card">
+          <div class="gpa-value"><?= calculateGPA($student_courses) ?></div>
+          <div class="gpa-label">Current GPA</div>
+        </div>
+      </div>
+
+      <!-- Grade Entry Form -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-header-icon">📝</span>
+          <h2>Edit Grades for <?= htmlspecialchars($student_data['first_name'] . ' ' . $student_data['last_name']) ?></h2>
+        </div>
+        
+        <form method="POST" action="admin_grades.php">
+          <input type="hidden" name="student_id" value="<?= htmlspecialchars($student_data['student_id']) ?>">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Course Code</th>
+                  <th>Course Name</th>
+                  <th>Units</th>
+                  <th>Schedule</th>
+                  <th>Professor</th>
+                  <th>Grade</th>
+                  <th>Current Grade</th>
+                </tr>
+              </thead>
+              <tbody>
+                <?php foreach ($student_courses as $course): ?>
+                  <tr>
+                    <td class="course-code"><?= htmlspecialchars($course['course_code']) ?></td>
+                    <td><?= htmlspecialchars($course['course_name']) ?></td>
+                    <td class="units-val"><?= $course['units'] ?></td>
+                    <td><?= htmlspecialchars($course['day'] ?? 'TBA') ?>, <?= htmlspecialchars($course['time'] ?? 'TBA') ?></td>
+                    <td><?= htmlspecialchars($course['professor'] ?? 'TBA') ?></td>
+                    <td>
+                      <select name="grades[<?= $course['course_code'] ?>][grade]" class="grade-select">
+                        <option value="">-- Select Grade --</option>
+                        <option value="A" <?= ($course['grade'] ?? '') == 'A' ? 'selected' : '' ?>>A (4.00) - Excellent</option>
+                        <option value="A-" <?= ($course['grade'] ?? '') == 'A-' ? 'selected' : '' ?>>A- (3.70)</option>
+                        <option value="B+" <?= ($course['grade'] ?? '') == 'B+' ? 'selected' : '' ?>>B+ (3.30)</option>
+                        <option value="B" <?= ($course['grade'] ?? '') == 'B' ? 'selected' : '' ?>>B (3.00) - Very Good</option>
+                        <option value="B-" <?= ($course['grade'] ?? '') == 'B-' ? 'selected' : '' ?>>B- (2.70)</option>
+                        <option value="C+" <?= ($course['grade'] ?? '') == 'C+' ? 'selected' : '' ?>>C+ (2.30)</option>
+                        <option value="C" <?= ($course['grade'] ?? '') == 'C' ? 'selected' : '' ?>>C (2.00) - Good</option>
+                        <option value="C-" <?= ($course['grade'] ?? '') == 'C-' ? 'selected' : '' ?>>C- (1.70)</option>
+                        <option value="D" <?= ($course['grade'] ?? '') == 'D' ? 'selected' : '' ?>>D (1.00) - Passing</option>
+                        <option value="F" <?= ($course['grade'] ?? '') == 'F' ? 'selected' : '' ?>>F (0.00) - Failed</option>
+                        <option value="INC" <?= ($course['grade'] ?? '') == 'INC' ? 'selected' : '' ?>>INC - Incomplete</option>
+                        <option value="W" <?= ($course['grade'] ?? '') == 'W' ? 'selected' : '' ?>>W - Withdrawn</option>
+                      </select>
+                    </td>
+                    <td>
+                      <?php if (!empty($course['grade'])): ?>
+                        <span style="font-weight: 700; color: #4c1d95;"><?= htmlspecialchars($course['grade']) ?></span>
+                      <?php else: ?>
+                        <span class="badge-na">Not graded yet</span>
+                      <?php endif; ?>
+                    </td>
+                  </tr>
+                <?php endforeach; ?>
+              </tbody>
+            </table>
+          </div>
+          
+          <div style="display: flex; gap: 12px; margin-top: 24px; justify-content: flex-end;">
+            <button type="submit" name="update_grades" class="btn-primary">💾 Save All Grades</button>
+            <button type="button" class="btn-secondary" onclick="window.location.href='admin_grades.php'">Cancel</button>
+          </div>
+        </form>
+      </div>
+    <?php endif; ?>
+
+    <!-- Quick Student Access -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-header-icon">👥</span>
+        <h2>All Students</h2>
+      </div>
+      <div class="student-list">
+        <?php while ($student = mysqli_fetch_assoc($students_query)): ?>
+          <div class="student-item">
+            <div>
+              <strong><?= htmlspecialchars($student['first_name'] . ' ' . $student['last_name']) ?></strong>
+              <br>
+              <small><?= htmlspecialchars($student['student_id']) ?> | <?= htmlspecialchars($student['course']) ?> | Section: <?= htmlspecialchars($student['section']) ?></small>
+            </div>
+            <a href="admin_grades.php?student_id=<?= urlencode($student['student_id']) ?>">View Grades →</a>
+          </div>
+        <?php endwhile; ?>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>
