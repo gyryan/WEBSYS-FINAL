@@ -385,7 +385,7 @@ if ($studentSection) {
               <div style="font-size: 48px; margin-bottom: 12px;">📋</div>
               <h3 style="margin: 0 0 8px; font-size: 18px; font-weight: 800; color: #1f2937;">No Schedule Yet for <?= htmlspecialchars($studentSection) ?></h3>
               <p style="margin: 0; font-size: 14px; line-height: 1.7;">
-                Your section's schedule has not been uploaded yet.<br>
+                Your Grades has not been uploaded yet.<br>
                 Please check back later or contact your department.
               </p>
             </div>

@@ -394,6 +394,25 @@ $fullName  = $user['first_name'] . ' ' . $user['last_name'];
       <!-- Table View -->
       <div id="tableView">
         <div class="table-wrap">
+          <?php if (!$studentSection): ?>
+            <div style="padding: 48px 24px; text-align: center; color: #64748b;">
+              <div style="font-size: 48px; margin-bottom: 12px;">🏷️</div>
+              <h3 style="margin: 0 0 8px; font-size: 18px; font-weight: 800; color: #1f2937;">No Section Assigned</h3>
+              <p style="margin: 0; font-size: 14px; line-height: 1.7;">
+                You have not been assigned to a section yet.<br>
+                Please wait for your admin to assign your section, or contact the Registrar's Office.
+              </p>
+            </div>
+          <?php elseif (empty($scheduleRows)): ?>
+            <div style="padding: 48px 24px; text-align: center; color: #64748b;">
+              <div style="font-size: 48px; margin-bottom: 12px;">📋</div>
+              <h3 style="margin: 0 0 8px; font-size: 18px; font-weight: 800; color: #1f2937;">No Schedule Yet for <?= htmlspecialchars($studentSection) ?></h3>
+              <p style="margin: 0; font-size: 14px; line-height: 1.7;">
+                Your section's schedule has not been uploaded yet.<br>
+                Please check back later or contact your department.
+              </p>
+            </div>
+          <?php else: ?>
           <table>
             <thead>
               <tr>
@@ -407,17 +426,28 @@ $fullName  = $user['first_name'] . ' ' . $user['last_name'];
               </tr>
             </thead>
             <tbody id="gradesBody"></tbody>
+             <?php foreach ($scheduleRows as $course): ?>
+              <tr>
+                <td><span class="course"><?= htmlspecialchars($course['course']) ?></span></td>
+                <td class="course-name-cell"><?= htmlspecialchars($course['course_name']) ?></td>
+                <td><span class="section-pill" style="font-size:<?= strlen($course['section']) > 2 ? '9px' : '12px' ?>;"><?= htmlspecialchars($course['section']) ?></span></td>
+                <td><span class="units-val"><?= htmlspecialchars($course['units']) ?></span></td>
+                <td class="day-cell"><?= htmlspecialchars($course['day']) ?></td>
+                <td class="time-cell"><?= htmlspecialchars($course['time']) ?></td>
+                <td class="room-cell"><?= htmlspecialchars($course['room']) ?></td>
+                <td class="prof-cell"><?= htmlspecialchars($course['professor']) ?></td>
+              </tr>
+              <?php endforeach; ?>
+            </tbody>
             <tfoot>
-              <tr class="tfoot-row">
-                <td><span class="totals-label">Semester Totals</span></td>
-                <td><span class="units-val" id="totalUnits">16</span></td>
-                <td></td>
-                <td></td>
-                <td colspan="2"><span class="totals-label">Semester GPA:</span></td>
-                <td><span class="totals-gpa" id="semesterGpa">1.50</span></td>
+              <tr class="total-row">
+                <td colspan="3" style="text-align:right;color:#475569;">Total Units:</td>
+                <td><span class="total-units-val"><?= $totalUnits ?></span></td>
+                <td colspan="4"></td>
               </tr>
             </tfoot>
           </table>
+          <?php endif; ?>
         </div>
       </div>
 
@@ -488,30 +518,6 @@ $fullName  = $user['first_name'] . ' ' . $user['last_name'];
 
 <script>
   /* ── Grade data per semester ── */
-  const semesters = {
-    "1st-2526": {
-      gpa: "1.50",
-      courses: [
-        { code:"CS 101",   name:"Introduction to Computer Science",  units:3, sched:"MWF 9:00 AM – 10:30 AM",  grade:"A",  numeric:"1.25", status:"Passed",  prof:"Dr. Maria Santos" },
-        { code:"MATH 201", name:"Calculus II",                        units:3, sched:"TTh 10:45 AM – 12:15 PM", grade:"B+", numeric:"1.75", status:"Passed",  prof:"Prof. Juan Dela Cruz" },
-        { code:"ENG 103",  name:"Technical Writing",                  units:3, sched:"MWF 1:00 PM – 2:30 PM",  grade:"A",  numeric:"1.25", status:"Passed",  prof:"Dr. Ana Reyes" },
-        { code:"PHYS 101", name:"Physics for Engineers",              units:4, sched:"TTh 2:45 PM – 4:45 PM",  grade:"B",  numeric:"2.00", status:"Passed",  prof:"Prof. Roberto Garcia" },
-        { code:"PE 101",   name:"Physical Education – Fitness",       units:2, sched:"Sat 8:00 AM – 10:00 AM", grade:"A",  numeric:"1.00", status:"Passed",  prof:"Coach Linda Fernandez" },
-        { code:"CS 102L",  name:"Computer Programming Lab",           units:1, sched:"F 3:00 PM – 5:00 PM",    grade:"A",  numeric:"1.25", status:"Passed",  prof:"Engr. Mark Villanueva" },
-      ]
-    },
-    "2nd-2526": {
-      gpa: "1.75",
-      courses: [
-        { code:"CS 201",   name:"Data Structures",                   units:3, sched:"MWF 8:00 AM – 9:30 AM",   grade:"A",  numeric:"1.25", status:"Passed", prof:"Dr. Maria Santos" },
-        { code:"MATH 301", name:"Differential Equations",            units:3, sched:"TTh 9:00 AM – 10:30 AM",  grade:"B+", numeric:"1.75", status:"Passed", prof:"Prof. Juan Dela Cruz" },
-        { code:"CS 203",   name:"Computer Organization",             units:3, sched:"MWF 1:00 PM – 2:30 PM",   grade:"B",  numeric:"2.00", status:"Passed", prof:"Engr. Mark Villanueva" },
-        { code:"ENG 201",  name:"Speech Communication",              units:3, sched:"TTh 2:00 PM – 3:30 PM",   grade:"A",  numeric:"1.25", status:"Passed", prof:"Dr. Ana Reyes" },
-        { code:"NSTP 101", name:"National Service Training Program",  units:3, sched:"Sat 7:00 AM – 10:00 AM", grade:"A",  numeric:"1.00", status:"Passed", prof:"Lt. Jose Bautista" },
-      ]
-    },
-  };
-
   const gradeClasses = { A:"grade-A", "B+":"grade-Bp", B:"grade-B", "C+":"grade-Cp", C:"grade-C", D:"grade-D", F:"grade-F" };
 
   function renderGrades(semKey) {
