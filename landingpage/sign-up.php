@@ -26,7 +26,6 @@ session_start();
       padding: 40px 20px;
     }
 
-    /* Container with animation */
     .auth-container {
       width: 100%;
       max-width: 1400px;
@@ -39,7 +38,6 @@ session_start();
       position: relative;
     }
 
-    /* Left Panel - Branding */
     .brand-panel {
       flex: 1;
       background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
@@ -141,7 +139,6 @@ session_start();
       font-size: 18px;
     }
 
-    /* Right Panel - Forms */
     .form-panel {
       flex: 1.2;
       padding: 40px 50px;
@@ -163,7 +160,6 @@ session_start();
       border-radius: 3px;
     }
 
-    /* Form Header */
     .form-header {
       text-align: center;
       margin-bottom: 35px;
@@ -181,7 +177,6 @@ session_start();
       font-size: 14px;
     }
 
-    /* Form Tabs (Login/Signup switcher) */
     .form-tabs {
       display: flex;
       gap: 12px;
@@ -215,7 +210,6 @@ session_start();
       color: #5b21b6;
     }
 
-    /* Form Container for animation */
     .form-container {
       position: relative;
       min-height: 500px;
@@ -230,38 +224,38 @@ session_start();
       display: none;
     }
 
-    /* Form Styles */
     .form-group {
       margin-bottom: 20px;
     }
-    /* Back to Home Button */
-/* Back to Home Button */
-.btn-back-home {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  background: #f3f4f6;
-  color: #4b5563;
-  text-decoration: none;
-  border-radius: 12px;
-  font-size: 13px;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  border: 1px solid #e5e7eb;
-  margin-bottom: 20px;
-}
 
-.btn-back-home:hover {
-  background: #5b21b6;
-  color: white;
-  border-color: #5b21b6;
-  transform: translateX(-3px);
-}
+    .btn-back-home {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: #f3f4f6;
+      color: #4b5563;
+      text-decoration: none;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      border: 1px solid #e5e7eb;
+      width: 100%;
+    }
 
-.btn-back-home:active {
-  transform: translateX(0);
-}
+    .btn-back-home:hover {
+      background: #5b21b6;
+      color: white;
+      border-color: #5b21b6;
+      transform: translateX(-3px);
+    }
+
+    .btn-back-home:active {
+      transform: translateX(0);
+    }
+
     .form-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -322,7 +316,6 @@ session_start();
       margin-top: 5px;
     }
 
-    /* Password strength */
     .password-strength {
       margin-top: 8px;
     }
@@ -346,7 +339,6 @@ session_start();
       color: #6b7280;
     }
 
-    /* Submit Button */
     .btn-submit {
       width: 100%;
       padding: 14px;
@@ -371,7 +363,6 @@ session_start();
       transform: translateY(0);
     }
 
-    /* Footer Links */
     .form-footer {
       text-align: center;
       margin-top: 25px;
@@ -395,7 +386,6 @@ session_start();
       text-decoration: underline;
     }
 
-    /* Alert Messages */
     .alert {
       padding: 14px 18px;
       border-radius: 12px;
@@ -415,7 +405,6 @@ session_start();
       border: 1px solid #a7f3d0;
     }
 
-    /* Responsive */
     @media (max-width: 1024px) {
       .auth-container {
         flex-direction: column;
@@ -458,7 +447,6 @@ session_start();
       }
     }
 
-    /* Animation for form switching */
     @keyframes slideInRight {
       from {
         opacity: 0;
@@ -488,7 +476,6 @@ session_start();
 </head>
 <body>
 <div class="auth-container">
-  <!-- Left Panel - Branding -->
   <div class="brand-panel">
     <div class="logo-area">
       <img src="../images/QCU-logo.png" alt="QCU Logo" />
@@ -510,14 +497,12 @@ session_start();
     </div>
   </div>
 
-  <!-- Right Panel - Forms -->
   <div class="form-panel">
     <div class="form-header">
       <h2>Get Started</h2>
       <p>Fill in your details to create your account</p>
     </div>
 
-    <!-- Tab Switcher -->
     <div class="form-tabs">
       <button class="tab-btn" id="showLoginBtn">Login</button>
       <button class="tab-btn active" id="showSignupBtn">Create Account</button>
@@ -526,14 +511,12 @@ session_start();
     <!-- Signup Form -->
     <div id="signupForm" class="form-wrapper active">
       <form action="signup-process.php" method="POST" onsubmit="return validateSignup()">
-        <!-- Student ID -->
         <div class="form-group">
           <label>Student ID Number <span class="required">*</span></label>
           <input type="text" name="student_id" id="student_id" placeholder="25-****" required>
           <div class="input-hint">Format: 2X-XXXX (e.g., 24-1234)</div>
         </div>
 
-        <!-- Name Fields -->
         <div class="form-row">
           <div class="form-group">
             <label>First Name <span class="required">*</span></label>
@@ -550,26 +533,22 @@ session_start();
           <input type="text" name="middle_name" id="middle_name">
         </div>
 
-        <!-- Email -->
         <div class="form-group">
           <label>QCU Email Address <span class="required">*</span></label>
           <input type="email" name="email" id="email" placeholder="your.name@qcu.edu.ph" required>
           <div class="input-hint">Use your official school-issued email address</div>
         </div>
 
-        <!-- Phone -->
         <div class="form-group">
           <label>Phone Number <span class="required">*</span></label>
           <input type="tel" name="phone_number" id="phone_number" placeholder="+63 912 345 6789" required>
         </div>
 
-        <!-- Address -->
         <div class="form-group">
           <label>Address <span class="required">*</span></label>
           <textarea name="address" id="address" rows="2" placeholder="123 Main Street, Quezon City, Philippines" required></textarea>
         </div>
 
-        <!-- Birthday and Gender -->
         <div class="form-row">
           <div class="form-group">
             <label>Birthday <span class="required">*</span></label>
@@ -587,7 +566,6 @@ session_start();
           </div>
         </div>
 
-        <!-- Course and Year Level -->
         <div class="form-row">
           <div class="form-group">
             <label>Course <span class="required">*</span></label>
@@ -616,7 +594,6 @@ session_start();
           </div>
         </div>
 
-        <!-- Section -->
         <div class="form-group">
           <label>Section <span class="required">*</span></label>
           <select name="section" id="section" required>
@@ -630,7 +607,6 @@ session_start();
           </select>
         </div>
 
-        <!-- Password -->
         <div class="form-group">
           <label>Password <span class="required">*</span></label>
           <input type="password" name="password" id="password" required onkeyup="checkPasswordStrength()">
@@ -643,7 +619,6 @@ session_start();
           <div class="input-hint">At least 8 characters with numbers and symbols</div>
         </div>
 
-        <!-- Confirm Password -->
         <div class="form-group">
           <label>Confirm Password <span class="required">*</span></label>
           <input type="password" name="confirm_password" id="confirm_password" required>
@@ -653,17 +628,11 @@ session_start();
 
         <div class="form-footer">
           <p>Already have an account? <a id="switchToLogin">Login here</a></p>
-
         </div>
-         </div>
-  <div style="margin-top: 15px;">
-    <a href="home.php" class="btn-back-home" style="justify-content: center; width: 100%;">
-      ← Go Back to Home Page
-    </a>
-  </div>
-</div>
-</div>
       </form>
+      <div style="margin-top: 20px;">
+        <a href="home.php" class="btn-back-home">← Go Back to Home Page</a>
+      </div>
     </div>
 
     <!-- Login Form (hidden initially) -->
@@ -685,24 +654,15 @@ session_start();
           <p>Don't have an account? <a id="switchToSignup">Create an account</a></p>
           <p style="margin-top: 12px;"><a href="#" style="font-size: 12px;">Forgot password?</a></p>
         </div>
-
-        <!-- Add this button anywhere inside the form-panel div, e.g., above the form-header -->
-    <div class="form-footer">
-  <p>Don't have an account? <a id="switchToSignup">Create an account</a></p>
-  <div style="margin-top: 15px;">
-    <a href="home.php" class="btn-back-home" style="justify-content: center; width: 100%;">
-      ← Go Back to Home Page
-    </a>
-  </div>
-</div>
-
       </form>
+      <div style="margin-top: 20px;">
+        <a href="home.php" class="btn-back-home">← Go Back to Home Page</a>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
-  // Form switching with animation
   const signupForm = document.getElementById('signupForm');
   const loginForm = document.getElementById('loginForm');
   const showLoginBtn = document.getElementById('showLoginBtn');
@@ -733,7 +693,6 @@ session_start();
   if (switchToLogin) switchToLogin.addEventListener('click', () => showForm('login'));
   if (switchToSignup) switchToSignup.addEventListener('click', () => showForm('signup'));
 
-  // Password strength checker
   function checkPasswordStrength() {
     const password = document.getElementById('password').value;
     const strengthFill = document.getElementById('strengthFill');
@@ -785,12 +744,10 @@ session_start();
     strengthText.textContent = message;
   }
 
-  // Validate Signup Form
   function validateSignup() {
     let isValid = true;
     const errors = [];
     
-    // Student ID validation
     const studentId = document.getElementById('student_id').value;
     const studentIdPattern = /^\d{2}-\d{4}$/;
     if (!studentIdPattern.test(studentId)) {
@@ -798,7 +755,6 @@ session_start();
       isValid = false;
     }
     
-    // Name validation
     const firstName = document.getElementById('first_name').value.trim();
     const lastName = document.getElementById('last_name').value.trim();
     if (firstName.length < 2) {
@@ -810,7 +766,6 @@ session_start();
       isValid = false;
     }
     
-    // Email validation
     const email = document.getElementById('email').value;
     const emailPattern = /^[a-zA-Z0-9._%+-]+@qcu\.edu\.ph$/;
     if (!emailPattern.test(email)) {
@@ -818,7 +773,6 @@ session_start();
       isValid = false;
     }
     
-    // Phone validation
     const phone = document.getElementById('phone_number').value;
     const phonePattern = /^(\+63|0)[0-9]{10}$/;
     if (!phonePattern.test(phone.replace(/[\s-]/g, ''))) {
@@ -826,7 +780,6 @@ session_start();
       isValid = false;
     }
     
-    // Password validation
     const password = document.getElementById('password').value;
     if (password.length < 8) {
       errors.push('Password must be at least 8 characters');
@@ -841,14 +794,12 @@ session_start();
       isValid = false;
     }
     
-    // Confirm password
     const confirmPassword = document.getElementById('confirm_password').value;
     if (password !== confirmPassword) {
       errors.push('Passwords do not match');
       isValid = false;
     }
     
-    // Course and Section validation
     const course = document.getElementById('course').value;
     const section = document.getElementById('section').value;
     if (!course || course === '') {
@@ -867,7 +818,6 @@ session_start();
     return isValid;
   }
   
-  // Validate Login Form
   function validateLogin() {
     const studentId = document.getElementById('login_student_id').value;
     const password = document.getElementById('login_password').value;
@@ -883,7 +833,6 @@ session_start();
     return true;
   }
   
-  // Student ID auto-format
   const studentIdInput = document.getElementById('student_id');
   if (studentIdInput) {
     studentIdInput.addEventListener('input', function(e) {
@@ -895,7 +844,6 @@ session_start();
     });
   }
   
-  // Phone number auto-format
   const phoneInput = document.getElementById('phone_number');
   if (phoneInput) {
     phoneInput.addEventListener('input', function(e) {

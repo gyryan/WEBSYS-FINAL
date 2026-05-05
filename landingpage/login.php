@@ -291,6 +291,35 @@ session_start();
       display: none;
     }
 
+    .btn-back-home {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: #f3f4f6;
+      color: #4b5563;
+      text-decoration: none;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      border: 1px solid #e5e7eb;
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    .btn-back-home:hover {
+      background: #5b21b6;
+      color: white;
+      border-color: #5b21b6;
+      transform: translateX(-3px);
+    }
+
+    .btn-back-home:active {
+      transform: translateX(0);
+    }
+
     @keyframes slideInRight {
       from { opacity: 0; transform: translateX(30px); }
       to { opacity: 1; transform: translateX(0); }
@@ -335,34 +364,6 @@ session_start();
       .form-header h2 {
         font-size: 26px;
       }
-      /* Back to Home Button */
-/* Back to Home Button */
-.btn-back-home {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  background: #f3f4f6;
-  color: #4b5563;
-  text-decoration: none;
-  border-radius: 12px;
-  font-size: 13px;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  border: 1px solid #e5e7eb;
-  margin-bottom: 20px;
-}
-
-.btn-back-home:hover {
-  background: #5b21b6;
-  color: white;
-  border-color: #5b21b6;
-  transform: translateX(-3px);
-}
-
-.btn-back-home:active {
-  transform: translateX(0);
-}
     }
   </style>
 </head>
@@ -429,26 +430,19 @@ session_start();
           <p style="margin-top: 15px;"><a href="#" style="font-size: 12px;">Forgot password? Contact IT Support</a></p>
         </div>
       </form>
+      <a href="home.php" class="btn-back-home">← Go Back to Home Page</a>
     </div>
 
     <!-- Signup Form (hidden initially) -->
     <div id="signupForm" class="form-wrapper hidden">
-      <form action="sign-up.php" method="GET">
-        <div style="text-align: center; padding: 40px 0;">
-          <p style="margin-bottom: 20px;">Click the button below to create your account</p>
-          <button type="submit" class="btn-submit" style="width: auto; padding: 12px 30px;">Create New Account →</button>
-        </div>
-        <!-- Add this button anywhere inside the form-panel div -->
-<div class="form-footer">
-  <p>Don't have an account? <a id="switchToSignup">Create an account</a></p>
-  </div>
-  <div style="margin-top: 15px;">
-    <a href="home.php" class="btn-back-home" style="justify-content: center; width: 100%;">
-      ← Go Back to Home Page
-    </a>
-  
-</div>
-      </form>
+      <div style="text-align: center; padding: 20px 0;">
+        <p style="margin-bottom: 20px;">Click the button below to create your account</p>
+        <a href="sign-up.php" class="btn-submit" style="display: inline-block; width: auto; padding: 12px 30px; text-decoration: none;">Create New Account →</a>
+      </div>
+      <div class="form-footer">
+        <p>Already have an account? <a id="switchToLogin">Login here</a></p>
+      </div>
+      <a href="home.php" class="btn-back-home">← Go Back to Home Page</a>
     </div>
   </div>
 </div>
@@ -459,6 +453,7 @@ session_start();
   const showLoginBtn = document.getElementById('showLoginBtn');
   const showSignupBtn = document.getElementById('showSignupBtn');
   const switchToSignup = document.getElementById('switchToSignup');
+  const switchToLogin = document.getElementById('switchToLogin');
 
   function showForm(formType) {
     if (formType === 'login') {
@@ -481,6 +476,7 @@ session_start();
   showLoginBtn.addEventListener('click', () => showForm('login'));
   showSignupBtn.addEventListener('click', () => showForm('signup'));
   if (switchToSignup) switchToSignup.addEventListener('click', () => showForm('signup'));
+  if (switchToLogin) switchToLogin.addEventListener('click', () => showForm('login'));
 </script>
 </body>
 </html>
