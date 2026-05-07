@@ -485,7 +485,7 @@ function calculateGPA($courses) {
                   <th>Course Code</th>
                   <th>Course Name</th>
                   <th>Units</th>
-                  <th>Schedule</th>
+                  <th>Time</th>
                   <th>Professor</th>
                   <th>Grade</th>
                   <th>Current Grade</th>
@@ -497,24 +497,24 @@ function calculateGPA($courses) {
                     <td class="course-code"><?= htmlspecialchars($course['course_code']) ?></td>
                     <td><?= htmlspecialchars($course['course_name']) ?></td>
                     <td class="units-val"><?= $course['units'] ?></td>
-                    <td><?= htmlspecialchars($course['day'] ?? 'TBA') ?>, <?= htmlspecialchars($course['time'] ?? 'TBA') ?></td>
+                    <td><?= htmlspecialchars($course['time'] ?? 'TBA') ?></td>
                     <td><?= htmlspecialchars($course['professor'] ?? 'TBA') ?></td>
                     <td>
                       <select name="grades[<?= $course['course_code'] ?>][grade]" class="grade-select">
                         <option value="">-- Select Grade --</option>
-                        <option value="A" <?= ($course['grade'] ?? '') == 'A' ? 'selected' : '' ?>>A (4.00) - Excellent</option>
-                        <option value="A-" <?= ($course['grade'] ?? '') == 'A-' ? 'selected' : '' ?>>A- (3.70)</option>
-                        <option value="B+" <?= ($course['grade'] ?? '') == 'B+' ? 'selected' : '' ?>>B+ (3.30)</option>
-                        <option value="B" <?= ($course['grade'] ?? '') == 'B' ? 'selected' : '' ?>>B (3.00) - Very Good</option>
-                        <option value="B-" <?= ($course['grade'] ?? '') == 'B-' ? 'selected' : '' ?>>B- (2.70)</option>
-                        <option value="C+" <?= ($course['grade'] ?? '') == 'C+' ? 'selected' : '' ?>>C+ (2.30)</option>
-                        <option value="C" <?= ($course['grade'] ?? '') == 'C' ? 'selected' : '' ?>>C (2.00) - Good</option>
-                        <option value="C-" <?= ($course['grade'] ?? '') == 'C-' ? 'selected' : '' ?>>C- (1.70)</option>
-                        <option value="D" <?= ($course['grade'] ?? '') == 'D' ? 'selected' : '' ?>>D (1.00) - Passing</option>
-                        <option value="F" <?= ($course['grade'] ?? '') == 'F' ? 'selected' : '' ?>>F (0.00) - Failed</option>
+                        <option value="1.00" <?= ($course['grade'] ?? '') == '1.00' ? 'selected' : '' ?>>1.00 - Excellent</option>
+                        <option value="1.25" <?= ($course['grade'] ?? '') == '1.25' ? 'selected' : '' ?>>1.25 - Excellent</option>
+                        <option value="1.50" <?= ($course['grade'] ?? '') == '1.50' ? 'selected' : '' ?>>1.50 - Very Good</option>
+                        <option value="1.75" <?= ($course['grade'] ?? '') == '1.75' ? 'selected' : '' ?>>1.75 - Good</option>
+                        <option value="2.00" <?= ($course['grade'] ?? '') == '2.00' ? 'selected' : '' ?>>2.00 - Satisfactory</option>
+                        <option value="2.25" <?= ($course['grade'] ?? '') == '2.25' ? 'selected' : '' ?>>2.25 - Satisfactory</option>
+                        <option value="2.50" <?= ($course['grade'] ?? '') == '2.50' ? 'selected' : '' ?>>2.50 - Satisfactory</option>
+                        <option value="2.75" <?= ($course['grade'] ?? '') == '2.75' ? 'selected' : '' ?>>2.75 - Fair</option>
+                        <option value="3.00" <?= ($course['grade'] ?? '') == '3.00' ? 'selected' : '' ?>>3.00 - Fair</option>
+                        <option value="5.00" <?= ($course['grade'] ?? '') == '5.00' ? 'selected' : '' ?>>5.00 - Failed</option>
                         <option value="INC" <?= ($course['grade'] ?? '') == 'INC' ? 'selected' : '' ?>>INC - Incomplete</option>
                         <option value="W" <?= ($course['grade'] ?? '') == 'W' ? 'selected' : '' ?>>W - Withdrawn</option>
-                      </select>
+                    </select>
                     </td>
                     <td>
                       <?php if (!empty($course['grade'])): ?>

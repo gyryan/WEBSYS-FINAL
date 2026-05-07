@@ -303,7 +303,7 @@ if ($studentSection) {
       <a href="events.php"     class="nav-item"><span class="nav-item-icon">📅</span>Events</a>
       <a href="SchoolSched.php" class="nav-item active"><span class="nav-item-icon">📋</span>Schedule</a>
       <a href="grades.php"     class="nav-item"><span class="nav-item-icon">📝</span>Grades</a>
-      <a href="digital-id.php" class="nav-item"><span class="nav-item-icon">🪪</span>Digital ID</a>
+      
       <a href="account.php"    class="nav-item"><span class="nav-item-icon">👤</span>Account</a>
     </nav>
     <div class="sidebar-footer">

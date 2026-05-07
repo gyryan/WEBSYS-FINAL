@@ -58,9 +58,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_schedule'])) {
         if (mysqli_stmt_execute($stmt)) {
             $_SESSION['message'] = "Schedule updated successfully!";
         } else {
-            $_SESSION['error'] = "Failed to update schedule.";
+            $_SESSION['error'] = "Failed to update schedule: " . mysqli_error($conn);
         }
         mysqli_stmt_close($stmt);
+        header('Location: admin_sched.php');
+        exit;
+    } else {
+        $_SESSION['error'] = "Please fill in all fields correctly.";
         header('Location: admin_sched.php');
         exit;
     }
@@ -77,15 +81,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_schedule'])) {
     $room = trim($_POST['room'] ?? '');
     $professor = trim($_POST['professor'] ?? '');
 
+    // Debug logging
+    error_log("Adding schedule - Day: $day, Time: $time");
+
     if ($courseCode && $courseName && $section && $units > 0 && $day && $time && $room && $professor) {
         $stmt = mysqli_prepare($conn, "INSERT INTO schedules (course_code, course_name, section, units, day, time, room, professor) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
         mysqli_stmt_bind_param($stmt, "sssiisss", $courseCode, $courseName, $section, $units, $day, $time, $room, $professor);
+        
         if (mysqli_stmt_execute($stmt)) {
             $_SESSION['message'] = "Schedule added successfully!";
         } else {
-            $_SESSION['error'] = "Failed to add schedule.";
+            $_SESSION['error'] = "Failed to add schedule: " . mysqli_error($conn);
         }
         mysqli_stmt_close($stmt);
+        header('Location: admin_sched.php');
+        exit;
+    } else {
+        $_SESSION['error'] = "Please fill in all fields correctly.";
         header('Location: admin_sched.php');
         exit;
     }
@@ -564,7 +576,7 @@ if (isset($_GET['edit'])) {
                       <td class="course-code"><?= htmlspecialchars($course['course_code']) ?></td>
                       <td><?= htmlspecialchars($course['course_name']) ?></td>
                       <td class="units-val"><?= $course['units'] ?></td>
-                      <td><?= htmlspecialchars($course['day']) ?></td>
+                      <td><strong><?= htmlspecialchars($course['day']) ?></strong></td>
                       <td><?= htmlspecialchars($course['time']) ?></td>
                       <td><?= htmlspecialchars($course['room']) ?></td>
                       <td><?= htmlspecialchars($course['professor']) ?></td>

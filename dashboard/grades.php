@@ -98,18 +98,18 @@ while ($row = mysqli_fetch_assoc($grades_result)) {
 $gpa = ($has_grades && $total_units > 0) ? number_format($total_points / $total_units, 2) : 'N/A';
 
 function getGradeColor($grade) {
-    if (!$grade || $grade == '') return '#9ca3af';
-    if ($grade == 'A' || $grade == 'A-') return '#10b981';
-    if ($grade == 'B+' || $grade == 'B' || $grade == 'B-') return '#3b82f6';
-    if ($grade == 'C+' || $grade == 'C' || $grade == 'C-') return '#f59e0b';
-    if ($grade == 'D') return '#8b5cf6';
-    if ($grade == 'F') return '#ef4444';
+    if (!$grade || $grade == '') return '#98a8c4';
+    if ($grade == 'Excellent') return '#10b981';
+    if ($grade == 'Good') return '#3b82f6';
+    if ($grade == 'Satisfactory') return '#f59e0b';
+    if ($grade == 'Fair' ) return '#8b5cf6';
+    if ($grade == 'Failed' ) return '#ef4444';
     return '#6b7280';
 }
 
 function getGradeStatus($grade) {
     if (!$grade || $grade == '') return 'Pending';
-    if ($grade == 'F') return 'Failed';
+    if ($grade == 'Failed') return 'Failed';
     if ($grade == 'INC') return 'Incomplete';
     if ($grade == 'W') return 'Withdrawn';
     return 'Passed';
@@ -275,7 +275,7 @@ foreach ($grades as $grade) {
       color: #6b7280;
     }
     .grade-small {
-      font-size: 11px;
+      font-size: 13px;
       font-weight: 600;
       margin-top: 4px;
     }
@@ -356,7 +356,7 @@ foreach ($grades as $grade) {
       <a href="events.php" class="nav-item"><span class="nav-item-icon">📅</span>Events</a>
       <a href="SchoolSched.php" class="nav-item"><span class="nav-item-icon">📋</span>Schedule</a>
       <a href="grades.php" class="nav-item active"><span class="nav-item-icon">📝</span>Grades</a>
-      <a href="digital-id.php" class="nav-item"><span class="nav-item-icon">🪪</span>Digital ID</a>
+      
       <a href="account.php" class="nav-item"><span class="nav-item-icon">👤</span>Account</a>
     </nav>
     <div class="sidebar-footer">
@@ -397,7 +397,7 @@ foreach ($grades as $grade) {
         <div class="stat-sub">
           <?php 
             if ($gpa !== 'N/A') {
-                echo $gpa >= 3.0 ? 'Excellent Standing' : ($gpa >= 2.0 ? 'Good Standing' : 'Academic Attention');
+                echo $gpa >= 1.0 ? 'Excellent Standing' : ($gpa >= 2.0 ? 'Good Standing' : 'Academic Attention');
             } else {
                 echo 'No grades yet';
             }
@@ -435,7 +435,7 @@ foreach ($grades as $grade) {
               <th>Course Code</th>
               <th>Course Name</th>
               <th>Units</th>
-              <th>Schedule</th>
+              <th>Time</th>
               <th>Professor</th>
               <th>Grade</th>
               <th>Status</th>
@@ -463,7 +463,7 @@ foreach ($grades as $grade) {
                           $schedule_info .= ' • ' . htmlspecialchars($grade['room']);
                       }
                   } else {
-                      $schedule_info = 'Schedule TBA';
+                      $schedule_info = $grade['time'] ?? 'Time TBA';
                   }
                 ?>
                 <tr>
@@ -477,11 +477,10 @@ foreach ($grades as $grade) {
                   <td class="prof-name"><?= htmlspecialchars($grade['professor'] ?? 'TBA') ?></td>
                   <td>
                     <?php if ($hasGrade): ?>
-                      <div class="grade-badge" style="background: <?= $gradeColor ?>;">
-                        <?= htmlspecialchars($grade['grade']) ?>
+                      
                       </div>
                       <?php if ($grade['grade_point']): ?>
-                        <div class="grade-small">(<?= number_format($grade['grade_point'], 2) ?>)</div>
+                        <div class="grade-small">(<?= number_format($grade['grade'], 2) ?>)</div>
                       <?php endif; ?>
                     <?php else: ?>
                       <div class="grade-badge grade-na">
@@ -522,10 +521,11 @@ foreach ($grades as $grade) {
       <div style="margin-top: 24px;">
         <h3 style="font-size: 14px; margin-bottom: 12px;">Grading Scale</h3>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 8px;">
-          <div style="padding: 8px; background: #f0fdf4; border-radius: 8px; text-align: center;"><strong style="color: #16a34a;">A</strong><br><small>4.00</small></div>
-          <div style="padding: 8px; background: #eff6ff; border-radius: 8px; text-align: center;"><strong style="color: #2563eb;">B+ / B / B-</strong><br><small>3.30 - 2.70</small></div>
-          <div style="padding: 8px; background: #fffbeb; border-radius: 8px; text-align: center;"><strong style="color: #d97706;">C+ / C / C-</strong><br><small>2.30 - 1.70</small></div>
-          <div style="padding: 8px; background: #fef2f2; border-radius: 8px; text-align: center;"><strong style="color: #dc2626;">D / F</strong><br><small>1.00 / 0.00</small></div>
+          <div style="padding: 6px; background: #f0fdf4; border-radius: 8px; text-align: center;"><strong style="color: #16a34a;">Excellent</strong><br><small>1.00-1.50</small></div>
+          <div style="padding: 6px; background: #eff6ff; border-radius: 8px; text-align: center;"><strong style="color: #2563eb;">Good</strong><br><small>1.75 - 2.00</small></div>
+          <div style="padding: 6px; background: #eff6ff; border-radius: 8px; text-align: center;"><strong style="color: #2563eb;">Satisfactory</strong><br><small>2.25 - 2.50</small></div>
+          <div style="padding: 6px; background: #fffbeb; border-radius: 8px; text-align: center;"><strong style="color: #d97706;">Fair</strong><br><small>2.75 - 3.00</small></div>
+          <div style="padding: 6px; background: #fef2f2; border-radius: 8px; text-align: center;"><strong style="color: #dc2626;">Failed</strong><br><small>5.00</small></div>
         </div>
         <p style="font-size: 11px; color: var(--text-muted); margin-top: 12px; text-align: center;">
           * Grades marked as "N/A" are still pending. Please check back later or contact your instructor.

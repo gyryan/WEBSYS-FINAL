@@ -515,7 +515,6 @@ if ($eventsResult) {
                 </tr>
               <?php endforeach; ?>
             </tbody>
-          可有
         <?php endif; ?>
       </div>
     </div>

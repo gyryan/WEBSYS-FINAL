@@ -720,7 +720,7 @@
   <div class="hero-content">
     <h1>QCU Student Portal</h1>
     <p>Serves as the #1 International University of Employable Graduates</p>
-    <a href="login.html" class="btn-home">Access QCUS-PORTAL</a>
+    <a href="login.php" class="btn-home">Access QCUS-PORTAL</a>
   </div>
 </section>
 
@@ -839,7 +839,7 @@
     </div>
   </div>
 
-  <a href="sign-up.html" class="btn-gold btn-gold-center">Get Started Now</a>
+  <a href="sign-up.php" class="btn-gold btn-gold-center">Get Started Now</a>
 </section>
 
 <!-- CONTACTS -->
