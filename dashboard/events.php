@@ -1,32 +1,34 @@
 <?php
 session_start();
 require_once '../config/config.php';
- 
+
 // Redirect to login if not logged in
 if (!isset($_SESSION['student_id'])) {
     header('Location: ../landingpage/login.php');
     exit;
 }
- 
+
 // Fetch student data from DB
 $stmt = mysqli_prepare($conn, "SELECT * FROM students WHERE student_id = ?");
 mysqli_stmt_bind_param($stmt, 's', $_SESSION['student_id']);
 mysqli_stmt_execute($stmt);
 $result = mysqli_stmt_get_result($stmt);
 $user = mysqli_fetch_assoc($result);
-$picPath = $user['profile_pic']
+$picPath = $user['profile_pic'] 
     ? '../uploads/profile_pics/' . $user['profile_pic']
     : null;
+
+// Get initials for avatar
 $initials = strtoupper(substr($user['first_name'], 0, 1) . substr($user['last_name'], 0, 1));
 $fullName  = $user['first_name'] . ' ' . $user['last_name'];
- 
-// ── Fetch events from DB ──
+
+// Fetch events from DB
 $eventsResult = mysqli_query($conn, "SELECT * FROM events ORDER BY event_date ASC");
 $dbEvents = [];
 while ($row = mysqli_fetch_assoc($eventsResult)) {
     $dbEvents[] = $row;
 }
- 
+
 // Category label map
 $categoryLabels = [
     'academic'   => 'Academic',
@@ -64,7 +66,6 @@ $categoryLabels = [
  
     .app-shell { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
  
-    /* Sidebar */
     .sidebar {
       background: linear-gradient(180deg,#3b0d51 0%,#14132b 100%);
       color: #f8fafc; padding: 32px 24px;
@@ -87,7 +88,6 @@ $categoryLabels = [
  
     .main-area { padding: 28px 32px; }
  
-    /* Topbar */
     .topbar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 24px; margin-bottom: 28px; }
     .user-greeting { margin: 0; color: #475569; font-size: 14px; }
     .page-title { margin: 8px 0 0; font-size: clamp(26px,3vw,34px); line-height: 1.05; }
@@ -100,24 +100,23 @@ $categoryLabels = [
     .profile-name { margin: 0; font-weight: 700; }
     .profile-email { margin: 0; color: var(--text-muted); font-size: 13px; }
  
-    /* Events Header */
     .events-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; margin-bottom: 28px; }
     .events-header h2 { margin: 0; font-size: 24px; font-weight: 800; }
     .events-header p { margin: 6px 0 0; color: var(--text-muted); font-size: 14px; line-height: 1.6; }
     .calendar-btn { display: flex; align-items: center; gap: 8px; padding: 13px 20px; border-radius: 14px; border: none; background: linear-gradient(135deg,#d97706,#b45309); color: #fff; font-size: 14px; font-weight: 700; white-space: nowrap; transition: transform .2s, box-shadow .2s; box-shadow: 0 4px 14px rgba(180,83,9,.25); }
     .calendar-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(180,83,9,.3); }
  
-    /* Filter Tabs */
     .filter-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
     .filter-tab { padding: 8px 18px; border-radius: 30px; font-size: 13px; font-weight: 600; border: 1.5px solid var(--border); background: #fff; color: var(--text-muted); transition: all .2s; }
     .filter-tab:hover { border-color: #7c3aed; color: #7c3aed; }
     .filter-tab.active { background: #7c3aed; border-color: #7c3aed; color: #fff; }
  
-    /* Event Cards */
     .event-list { display: grid; gap: 20px; }
     .event-card { background: #fff; border-radius: 20px; border: 1px solid var(--border); box-shadow: 0 4px 20px rgba(15,23,42,.04); display: grid; grid-template-columns: 200px 1fr auto; overflow: hidden; transition: box-shadow .25s, transform .25s; }
     .event-card:hover { box-shadow: 0 12px 40px rgba(15,23,42,.1); transform: translateY(-2px); }
-    .event-img-placeholder { width: 200px; height: 140px; display: grid; place-items: center; background: linear-gradient(135deg,#e0e7ff,#ede9fe); font-size: 40px; }
+    .event-img-placeholder { width: 200px; height: 140px; background: linear-gradient(135deg,#e0e7ff,#ede9fe); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .event-img-placeholder img { width: 100%; height: 100%; object-fit: cover; }
+    .event-img-placeholder span { font-size: 40px; }
     .event-body { padding: 20px 22px; display: flex; flex-direction: column; gap: 10px; }
     .event-title-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     .event-title { margin: 0; font-size: 18px; font-weight: 700; }
@@ -129,49 +128,48 @@ $categoryLabels = [
     .badge-default    { background: #f1f5f9; color: #475569; }
     .event-meta { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: var(--text-muted); }
     .event-meta span { display: flex; align-items: center; gap: 5px; }
-    .event-desc { margin: 0; font-size: 14px; color: #475569; line-height: 1.6; }
+    .event-desc { margin: 0; font-size: 14px; color: #475569; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     .event-action { padding: 20px 20px 20px 0; display: flex; align-items: center; }
-    .view-btn { display: flex; align-items: center; gap: 8px; padding: 12px 20px; border-radius: 12px; border: none; background: linear-gradient(135deg,#1e3a8a,#1d4ed8); color: #fff; font-size: 14px; font-weight: 700; white-space: nowrap; transition: transform .2s, box-shadow .2s; box-shadow: 0 4px 12px rgba(29,78,216,.25); }
+    .view-btn { display: flex; align-items: center; gap: 8px; padding: 12px 20px; border-radius: 12px; border: none; background: linear-gradient(135deg,#1e3a8a,#1d4ed8); color: #fff; font-size: 14px; font-weight: 700; white-space: nowrap; transition: transform .2s, box-shadow .2s; box-shadow: 0 4px 12px rgba(29,78,216,.25); cursor: pointer; }
     .view-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(29,78,216,.35); }
  
-    /* Empty state */
     .empty-state { padding: 60px 24px; text-align: center; color: var(--text-muted); background: #fff; border-radius: 20px; border: 1px solid var(--border); }
     .empty-state .empty-icon { font-size: 52px; margin-bottom: 12px; }
     .empty-state p { margin: 0; font-size: 15px; }
  
-    /* Modal */
-    .modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,.5); backdrop-filter: blur(4px); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity .25s; }
-    .modal-overlay.open { opacity: 1; pointer-events: all; }
-    .modal { background: #fff; border-radius: 24px; width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; box-shadow: 0 40px 100px rgba(15,23,42,.2); transform: translateY(20px) scale(.97); transition: transform .3s cubic-bezier(.34,1.56,.64,1); }
-    .modal-overlay.open .modal { transform: translateY(0) scale(1); }
-    .modal-hero { height: 260px; position: relative; display: flex; align-items: center; justify-content: center; }
-    .modal-hero-placeholder { width: 100%; height: 100%; background: linear-gradient(135deg,#e0e7ff,#ede9fe); display: grid; place-items: center; font-size: 72px; }
-    .modal-hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top,rgba(15,23,42,.5) 0%,transparent 60%); }
-    .modal-hero-content { position: absolute; bottom: 18px; left: 22px; right: 50px; }
-    .modal-hero-content .badge { margin-bottom: 8px; display: inline-block; }
-    .modal-hero-content h2 { margin: 0; color: #fff; font-size: 22px; font-weight: 800; text-shadow: 0 2px 8px rgba(0,0,0,.3); }
-    .modal-close { position: absolute; top: 14px; right: 14px; width: 36px; height: 36px; border-radius: 50%; border: none; background: rgba(255,255,255,.9); color: #1f2937; font-size: 18px; display: grid; place-items: center; transition: background .2s; z-index: 2; }
-    .modal-close:hover { background: #fff; }
-    .modal-body { padding: 24px; display: grid; gap: 16px; }
-    .modal-info-row { display: grid; gap: 12px; }
-    .modal-info-item { padding: 16px 18px; border-radius: 14px; display: flex; flex-direction: column; gap: 6px; }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,.8); backdrop-filter: blur(8px); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; visibility: hidden; transition: opacity .3s ease, visibility .3s ease; }
+    .modal-overlay.open { opacity: 1; visibility: visible; }
+    .modal { background: #fff; border-radius: 28px; width: 100%; max-width: 550px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,.25); transform: scale(0.95); transition: transform .3s ease; }
+    .modal-overlay.open .modal { transform: scale(1); }
+    .modal-hero { height: 220px; position: relative; overflow: hidden; border-radius: 28px 28px 0 0; background: linear-gradient(135deg,#1e3a8a,#7c3aed); }
+    .modal-hero img { width: 100%; height: 100%; object-fit: cover; }
+    .modal-hero .hero-emoji { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 80px; background: linear-gradient(135deg,#e0e7ff,#ede9fe); }
+    .modal-hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 50%); }
+    .modal-hero-content { position: absolute; bottom: 20px; left: 24px; right: 60px; }
+    .modal-hero-content .badge { margin-bottom: 8px; display: inline-block; background: rgba(255,255,255,0.2); backdrop-filter: blur(4px); color: white; }
+    .modal-hero-content h2 { margin: 0; color: #fff; font-size: 22px; font-weight: 800; text-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+    .modal-close { position: absolute; top: 16px; right: 16px; width: 40px; height: 40px; border-radius: 50%; border: none; background: rgba(255,255,255,0.9); color: #1f2937; font-size: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all .2s; z-index: 10; }
+    .modal-close:hover { background: #fff; transform: scale(1.05); }
+    .modal-body { padding: 28px; }
+    .modal-info-row { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+    .modal-info-item { padding: 14px 18px; border-radius: 16px; display: flex; align-items: center; gap: 12px; }
     .modal-info-item.date-bg { background: #eff6ff; }
     .modal-info-item.time-bg { background: #fffbeb; }
     .modal-info-item.loc-bg  { background: #fef2f2; }
-    .modal-info-label { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; color: var(--text-muted); }
-    .modal-info-value { font-size: 16px; font-weight: 600; padding-left: 26px; }
-    .modal-desc-title { margin: 0 0 6px; font-size: 16px; font-weight: 700; }
+    .modal-info-label { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--text-muted); }
+    .modal-info-value { font-size: 15px; font-weight: 500; color: var(--text); }
+    .modal-desc-title { margin: 0 0 8px; font-size: 16px; font-weight: 700; }
     .modal-desc-text { margin: 0; font-size: 14px; color: #475569; line-height: 1.7; }
-    .modal-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .btn-add-cal { padding: 14px; border-radius: 12px; border: none; background: linear-gradient(135deg,#d97706,#b45309); color: #fff; font-size: 14px; font-weight: 700; transition: transform .2s, box-shadow .2s; }
-    .btn-add-cal:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(180,83,9,.3); }
-    .btn-share { padding: 14px; border-radius: 12px; border: 1.5px solid var(--border); background: #fff; color: var(--text); font-size: 14px; font-weight: 600; transition: border-color .2s; }
+    .modal-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
+    .btn-add-cal, .btn-share { padding: 12px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all .2s; }
+    .btn-add-cal { background: linear-gradient(135deg,#d97706,#b45309); border: none; color: #fff; }
+    .btn-add-cal:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(180,83,9,.3); }
+    .btn-share { background: #fff; border: 1.5px solid var(--border); color: var(--text); }
     .btn-share:hover { border-color: #7c3aed; color: #7c3aed; }
  
-    /* Calendar Modal */
     .cal-modal-header { padding: 20px 24px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
     .cal-modal-header h2 { margin: 0; font-size: 20px; font-weight: 800; }
-    .cal-close-btn { width: 36px; height: 36px; border-radius: 50%; border: none; background: #f1f5f9; color: #1f2937; font-size: 18px; display: grid; place-items: center; flex-shrink: 0; transition: background .2s; }
+    .cal-close-btn { width: 36px; height: 36px; border-radius: 50%; border: none; background: #f1f5f9; color: #1f2937; font-size: 18px; display: grid; place-items: center; flex-shrink: 0; cursor: pointer; transition: background .2s; }
     .cal-close-btn:hover { background: #e2e8f0; }
     .cal-image-area { background: #0f172a; display: flex; align-items: center; justify-content: center; min-height: 400px; max-height: 62vh; overflow: hidden; }
     .cal-image-area img { max-width: 100%; max-height: 62vh; object-fit: contain; display: block; }
@@ -186,7 +184,6 @@ $categoryLabels = [
 <body>
 <div class="app-shell">
  
-  <!-- Sidebar -->
   <aside class="sidebar">
     <div class="sidebar-brand">
       <div class="nav-logo">
@@ -197,7 +194,7 @@ $categoryLabels = [
         <span class="brand-sub">Student Dashboard</span>
       </div>
     </div>
-    <nav class="sidebar-nav" aria-label="Dashboard navigation">
+    <nav class="sidebar-nav">
       <a href="dashboard.php"    class="nav-item"><span class="nav-item-icon">🏠</span>Dashboard</a>
       <a href="events.php"       class="nav-item active"><span class="nav-item-icon">📅</span>Events</a>
       <a href="SchoolSched.php"  class="nav-item"><span class="nav-item-icon">📋</span>Schedule</a>
@@ -210,7 +207,6 @@ $categoryLabels = [
     </div>
   </aside>
  
-  <!-- Main -->
   <main class="main-area">
     <header class="topbar">
       <div>
@@ -235,7 +231,6 @@ $categoryLabels = [
       </div>
     </header>
  
-    <!-- Events Header -->
     <div class="events-header">
       <div>
         <h2>Upcoming Events</h2>
@@ -246,7 +241,6 @@ $categoryLabels = [
       </button>
     </div>
  
-    <!-- Filter Tabs -->
     <div class="filter-tabs">
       <button class="filter-tab active" data-filter="all">All Events</button>
       <button class="filter-tab" data-filter="academic">Academic</button>
@@ -255,16 +249,15 @@ $categoryLabels = [
       <button class="filter-tab" data-filter="student">Student Activity</button>
     </div>
  
-    <!-- Event List (rendered by JS from PHP-injected data) -->
     <div class="event-list" id="eventList"></div>
   </main>
 </div>
  
-<!-- ── Event Detail Modal ── -->
-<div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-  <div class="modal" id="modal">
+<!-- Event Detail Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
     <div class="modal-hero" id="modalHero">
-      <button class="modal-close" id="modalClose" aria-label="Close">✕</button>
+      <button class="modal-close" id="modalClose">✕</button>
       <div class="modal-hero-overlay"></div>
       <div class="modal-hero-content">
         <span class="badge" id="modalBadge"></span>
@@ -274,39 +267,39 @@ $categoryLabels = [
     <div class="modal-body">
       <div class="modal-info-row">
         <div class="modal-info-item date-bg">
-          <span class="modal-info-label">📅 Date</span>
-          <span class="modal-info-value" id="modalDate"></span>
+          <div class="modal-info-label">📅 Date</div>
+          <div class="modal-info-value" id="modalDate"></div>
         </div>
         <div class="modal-info-item time-bg">
-          <span class="modal-info-label">🕐 Time</span>
-          <span class="modal-info-value" id="modalTime"></span>
+          <div class="modal-info-label">🕐 Time</div>
+          <div class="modal-info-value" id="modalTime"></div>
         </div>
         <div class="modal-info-item loc-bg">
-          <span class="modal-info-label">📍 Location</span>
-          <span class="modal-info-value" id="modalLocation"></span>
+          <div class="modal-info-label">📍 Location</div>
+          <div class="modal-info-value" id="modalLocation"></div>
         </div>
       </div>
       <div>
-        <p class="modal-desc-title">Event Description</p>
+        <p class="modal-desc-title">Description</p>
         <p class="modal-desc-text" id="modalDesc"></p>
       </div>
       <div class="modal-actions">
-        <button type="button" class="btn-add-cal">📅 Add to Calendar</button>
-        <button type="button" class="btn-share">🔗 Share Event</button>
+        <button class="btn-add-cal" onclick="alert('Added to calendar!')">📅 Add to Calendar</button>
+        <button class="btn-share" onclick="alert('Share feature coming soon!')">🔗 Share Event</button>
       </div>
     </div>
   </div>
 </div>
  
-<!-- ── Calendar Modal ── -->
-<div class="modal-overlay" id="calendarOverlay" role="dialog" aria-modal="true">
+<!-- Calendar Modal -->
+<div class="modal-overlay" id="calendarOverlay">
   <div class="modal" style="max-width: 640px;">
     <div class="cal-modal-header">
       <div>
         <span class="badge badge-university" style="margin-bottom: 6px; display: inline-block;">School Calendar</span>
         <h2 id="calendarTitle">1st Semester Calendar</h2>
       </div>
-      <button class="cal-close-btn" onclick="closeCalendar()" aria-label="Close">✕</button>
+      <button class="cal-close-btn" onclick="closeCalendar()">✕</button>
     </div>
     <div class="cal-image-area">
       <img id="calendarImage" src="../images/QCU-Calendar-1stSem.png" alt="School Calendar" />
@@ -324,7 +317,6 @@ $categoryLabels = [
 </div>
  
 <script>
-  /* ── Events from PHP/DB ── */
   const events = <?php
     $jsEvents = [];
     foreach ($dbEvents as $ev) {
@@ -337,7 +329,9 @@ $categoryLabels = [
             'time'        => $ev['event_time'],
             'location'    => $ev['location'],
             'description' => $ev['description'],
-            'image'       => $ev['image_emoji'],
+            'image'       => isset($ev['event_image']) && $ev['event_image'] && file_exists('../uploads/events/' . $ev['event_image']) 
+                            ? '../uploads/events/' . $ev['event_image'] 
+                            : null,
         ];
     }
     echo json_encode($jsEvents, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
@@ -350,7 +344,6 @@ $categoryLabels = [
     student:    'badge-student'
   };
  
-  /* ── Render ── */
   function renderEvents(filter = 'all') {
     const list = document.getElementById('eventList');
     const filtered = filter === 'all' ? events : events.filter(e => e.category === filter);
@@ -366,7 +359,9 @@ $categoryLabels = [
  
     list.innerHTML = filtered.map(ev => `
       <article class="event-card" data-id="${ev.id}">
-        <div class="event-img-placeholder">${ev.image}</div>
+        <div class="event-img-placeholder">
+          ${ev.image ? `<img src="${ev.image}" alt="${ev.title}" />` : `<span>📅</span>`}
+        </div>
         <div class="event-body">
           <div class="event-title-row">
             <h3 class="event-title">${ev.title}</h3>
@@ -377,7 +372,7 @@ $categoryLabels = [
             <span>🕐 ${ev.time}</span>
             <span>📍 ${ev.location}</span>
           </div>
-          <p class="event-desc">${ev.description}</p>
+          <p class="event-desc">${ev.description.substring(0, 120)}${ev.description.length > 120 ? '...' : ''}</p>
         </div>
         <div class="event-action">
           <button type="button" class="view-btn" onclick="openModal(${ev.id})">
@@ -388,36 +383,36 @@ $categoryLabels = [
     `).join('');
   }
  
-  /* ── Filter tabs ── */
-  document.querySelectorAll('.filter-tab').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      renderEvents(btn.dataset.filter);
-    });
-  });
- 
-  /* ── Event Detail Modal ── */
   function openModal(id) {
     const ev = events.find(e => e.id === id);
     if (!ev) return;
  
     const hero = document.getElementById('modalHero');
-    const existingMedia = hero.querySelector('.modal-hero-placeholder');
-    if (existingMedia) existingMedia.remove();
+    // Clear existing content
+    const existingImg = hero.querySelector('img');
+    const existingEmoji = hero.querySelector('.hero-emoji');
+    if (existingImg) existingImg.remove();
+    if (existingEmoji) existingEmoji.remove();
  
-    const placeholder = document.createElement('div');
-    placeholder.className = 'modal-hero-placeholder';
-    placeholder.textContent = ev.image;
-    hero.insertBefore(placeholder, hero.firstChild);
+    if (ev.image) {
+      const img = document.createElement('img');
+      img.src = ev.image;
+      img.alt = ev.title;
+      hero.insertBefore(img, hero.firstChild);
+    } else {
+      const emojiDiv = document.createElement('div');
+      emojiDiv.className = 'hero-emoji';
+      emojiDiv.textContent = '📅';
+      hero.insertBefore(emojiDiv, hero.firstChild);
+    }
  
     document.getElementById('modalBadge').className = `badge ${badgeClass[ev.category] || 'badge-default'}`;
     document.getElementById('modalBadge').textContent = ev.label;
-    document.getElementById('modalTitle').textContent  = ev.title;
-    document.getElementById('modalDate').textContent   = ev.date;
-    document.getElementById('modalTime').textContent   = ev.time;
+    document.getElementById('modalTitle').textContent = ev.title;
+    document.getElementById('modalDate').textContent = ev.date;
+    document.getElementById('modalTime').textContent = ev.time;
     document.getElementById('modalLocation').textContent = ev.location;
-    document.getElementById('modalDesc').textContent   = ev.description;
+    document.getElementById('modalDesc').textContent = ev.description;
  
     document.getElementById('modalOverlay').classList.add('open');
     document.body.style.overflow = 'hidden';
@@ -429,29 +424,47 @@ $categoryLabels = [
   }
  
   document.getElementById('modalClose').addEventListener('click', closeModal);
-  document.getElementById('modalOverlay').addEventListener('click', e => {
-    if (e.target === document.getElementById('modalOverlay')) closeModal();
+  document.getElementById('modalOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
   });
-  document.addEventListener('keydown', e => {
+  document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') { closeModal(); closeCalendar(); }
   });
  
-  /* ── Calendar Modal ── */
+  document.querySelectorAll('.filter-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderEvents(btn.dataset.filter);
+    });
+  });
+ 
   const calendarData = {
     first:  { title: '1st Semester Calendar', image: '../images/QCU-Calendar-1stSem.png' },
     second: { title: '2nd Semester Calendar', image: '../images/QCU-Calendar-2ndSem.png' }
   };
  
-  function openCalendar()  { document.getElementById('calendarOverlay').classList.add('open');    document.body.style.overflow = 'hidden'; }
-  function closeCalendar() { document.getElementById('calendarOverlay').classList.remove('open'); document.body.style.overflow = ''; }
-  function showFirstSem()  { document.getElementById('calendarTitle').textContent = calendarData.first.title;  document.getElementById('calendarImage').src = calendarData.first.image; }
-  function showSecondSem() { document.getElementById('calendarTitle').textContent = calendarData.second.title; document.getElementById('calendarImage').src = calendarData.second.image; }
+  function openCalendar() { 
+    document.getElementById('calendarOverlay').classList.add('open'); 
+    document.body.style.overflow = 'hidden'; 
+  }
+  function closeCalendar() { 
+    document.getElementById('calendarOverlay').classList.remove('open'); 
+    document.body.style.overflow = ''; 
+  }
+  function showFirstSem() { 
+    document.getElementById('calendarTitle').textContent = calendarData.first.title; 
+    document.getElementById('calendarImage').src = calendarData.first.image; 
+  }
+  function showSecondSem() { 
+    document.getElementById('calendarTitle').textContent = calendarData.second.title; 
+    document.getElementById('calendarImage').src = calendarData.second.image; 
+  }
  
-  document.getElementById('calendarOverlay').addEventListener('click', e => {
+  document.getElementById('calendarOverlay').addEventListener('click', function(e) {
     if (e.target.id === 'calendarOverlay') closeCalendar();
   });
  
-  /* ── Init ── */
   renderEvents();
 </script>
 </body>

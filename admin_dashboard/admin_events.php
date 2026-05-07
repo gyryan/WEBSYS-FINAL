@@ -1,13 +1,13 @@
 <?php
 session_start();
 require_once '../config/config.php';
- 
+
 // Redirect to login if not logged in
 if (!isset($_SESSION['student_id'])) {
     header('Location: ../landingpage/login.php');
     exit;
 }
- 
+
 // Fetch admin data from DB
 $stmt = mysqli_prepare($conn, "SELECT * FROM students WHERE student_id = ?");
 mysqli_stmt_bind_param($stmt, 's', $_SESSION['student_id']);
@@ -19,13 +19,25 @@ $picPath = $user['profile_pic']
     : null;
 $initials = strtoupper(substr($user['first_name'], 0, 1) . substr($user['last_name'], 0, 1));
 $fullName  = $user['first_name'] . ' ' . $user['last_name'];
- 
+
+// Create events upload directory if it doesn't exist
+$eventsDir = '../uploads/events/';
+if (!is_dir($eventsDir)) {
+    mkdir($eventsDir, 0755, true);
+}
+
+// Check if event_image column exists and add it if not
+$checkColumn = mysqli_query($conn, "SHOW COLUMNS FROM events LIKE 'event_image'");
+if (mysqli_num_rows($checkColumn) == 0) {
+    mysqli_query($conn, "ALTER TABLE events ADD COLUMN event_image VARCHAR(255) DEFAULT NULL");
+}
+
 // ── Handle POST: Add Event ──
 $success = '';
 $error   = '';
- 
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
- 
+
     if ($_POST['action'] === 'add') {
         $title       = trim($_POST['title'] ?? '');
         $category    = $_POST['category'] ?? 'academic';
@@ -33,41 +45,89 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $event_time  = trim($_POST['event_time'] ?? '');
         $location    = trim($_POST['location'] ?? '');
         $description = trim($_POST['description'] ?? '');
-        $image_emoji = trim($_POST['image_emoji'] ?? '📅');
- 
-        if ($title && $category && $event_date && $event_time && $location && $description) {
-            $ins = mysqli_prepare($conn,
-                "INSERT INTO events (title, category, event_date, event_time, location, description, image_emoji)
-                 VALUES (?, ?, ?, ?, ?, ?, ?)");
-            mysqli_stmt_bind_param($ins, 'sssssss',
-                $title, $category, $event_date, $event_time, $location, $description, $image_emoji);
-            if (mysqli_stmt_execute($ins)) {
-                $success = 'Event "' . htmlspecialchars($title) . '" added successfully!';
+        $event_image = null;
+        
+        // Handle file upload
+        if (isset($_FILES['event_photo']) && $_FILES['event_photo']['error'] === UPLOAD_ERR_OK) {
+            $file = $_FILES['event_photo'];
+            $filename = basename($file['name']);
+            $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+            $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+            
+            if (in_array($ext, $allowed)) {
+                if ($file['size'] <= 5 * 1024 * 1024) {
+                    $newFilename = time() . '_' . uniqid() . '.' . $ext;
+                    $filepath = $eventsDir . $newFilename;
+                    
+                    if (move_uploaded_file($file['tmp_name'], $filepath)) {
+                        $event_image = $newFilename;
+                    } else {
+                        $error = 'Failed to upload photo. Please check folder permissions.';
+                    }
+                } else {
+                    $error = 'Photo must be under 5MB.';
+                }
+            } else {
+                $error = 'Photo must be JPG, PNG, GIF, or WEBP.';
+            }
+        }
+
+        if ($title && $category && $event_date && $event_time && $location && $description && !$error) {
+            $sql = "INSERT INTO events (title, category, event_date, event_time, location, description, event_image) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?)";
+            $stmt = mysqli_prepare($conn, $sql);
+            
+            if ($stmt) {
+                mysqli_stmt_bind_param($stmt, 'sssssss', $title, $category, $event_date, $event_time, $location, $description, $event_image);
+                
+                if (mysqli_stmt_execute($stmt)) {
+                    $success = '✅ Event "' . htmlspecialchars($title) . '" published successfully!';
+                    if ($event_image) {
+                        $success .= ' Image uploaded!';
+                    }
+                } else {
+                    $error = 'Database error: ' . mysqli_error($conn);
+                }
             } else {
                 $error = 'Database error: ' . mysqli_error($conn);
             }
-        } else {
+        } elseif (!$error) {
             $error = 'Please fill in all required fields.';
         }
     }
- 
+
     if ($_POST['action'] === 'delete' && isset($_POST['event_id'])) {
         $eid = (int) $_POST['event_id'];
+        
+        // Get image filename to delete
+        $imgQuery = mysqli_query($conn, "SELECT event_image FROM events WHERE id = $eid");
+        if ($imgQuery && $imgRow = mysqli_fetch_assoc($imgQuery)) {
+            if ($imgRow['event_image'] && file_exists($eventsDir . $imgRow['event_image'])) {
+                unlink($eventsDir . $imgRow['event_image']);
+            }
+        }
+        
         $del = mysqli_prepare($conn, "DELETE FROM events WHERE id = ?");
-        mysqli_stmt_bind_param($del, 'i', $eid);
-        if (mysqli_stmt_execute($del)) {
-            $success = 'Event deleted successfully.';
+        if ($del) {
+            mysqli_stmt_bind_param($del, 'i', $eid);
+            if (mysqli_stmt_execute($del)) {
+                $success = '✅ Event deleted successfully.';
+            } else {
+                $error = 'Could not delete event.';
+            }
         } else {
-            $error = 'Could not delete event.';
+            $error = 'Database error: ' . mysqli_error($conn);
         }
     }
 }
- 
+
 // ── Fetch all events ──
-$eventsResult = mysqli_query($conn, "SELECT * FROM events ORDER BY event_date ASC");
 $allEvents = [];
-while ($row = mysqli_fetch_assoc($eventsResult)) {
-    $allEvents[] = $row;
+$eventsResult = mysqli_query($conn, "SELECT * FROM events ORDER BY event_date ASC");
+if ($eventsResult) {
+    while ($row = mysqli_fetch_assoc($eventsResult)) {
+        $allEvents[] = $row;
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -99,10 +159,8 @@ while ($row = mysqli_fetch_assoc($eventsResult)) {
     button { font-family: inherit; cursor: pointer; }
     a { text-decoration: none; color: inherit; }
  
-    /* Shell */
     .app-shell { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
  
-    /* Sidebar */
     .sidebar {
       background: black; color: #f8fafc;
       padding: 32px 24px; display: flex; flex-direction: column; gap: 32px;
@@ -138,10 +196,8 @@ while ($row = mysqli_fetch_assoc($eventsResult)) {
     }
     .logout-button:hover { background: rgba(255,255,255,.08); }
  
-    /* Main */
     .main-area { padding: 28px 32px; }
  
-    /* Topbar */
     .topbar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 24px; margin-bottom: 28px; }
     .user-greeting { margin: 0; color: #475569; font-size: 14px; }
     .page-title { margin: 8px 0 0; font-size: clamp(26px,3vw,34px); line-height: 1.05; }
@@ -152,15 +208,12 @@ while ($row = mysqli_fetch_assoc($eventsResult)) {
     .profile-name { margin: 0; font-weight: 700; }
     .profile-email { margin: 0; color: var(--text-muted); font-size: 13px; }
  
-    /* Alert */
     .alert { padding: 14px 18px; border-radius: 14px; font-size: 14px; font-weight: 600; margin-bottom: 24px; }
     .alert-success { background: var(--success-bg); color: var(--success); }
     .alert-error   { background: var(--error-bg);   color: var(--error); }
  
-    /* Two-column layout */
     .content-grid { display: grid; grid-template-columns: 420px 1fr; gap: 28px; align-items: start; }
  
-    /* Add Event Form */
     .form-card {
       background: #fff; border-radius: 20px; padding: 28px;
       border: 1px solid var(--border); box-shadow: 0 4px 20px rgba(15,23,42,.04);
@@ -184,11 +237,49 @@ while ($row = mysqli_fetch_assoc($eventsResult)) {
     .form-group textarea:focus { border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,.1); background: #fff; }
     .form-group textarea { resize: vertical; min-height: 90px; }
  
-    .emoji-row { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: end; }
-    .emoji-preview {
-      width: 48px; height: 48px; border-radius: 12px;
-      background: linear-gradient(135deg,#e0e7ff,#ede9fe);
-      display: grid; place-items: center; font-size: 24px;
+    .photo-upload {
+      margin-top: 8px;
+    }
+    .photo-preview {
+      width: 120px;
+      height: 120px;
+      border-radius: 12px;
+      background: #f1f5f9;
+      border: 2px dashed #cbd5e1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+      overflow: hidden;
+      background-size: cover;
+      background-position: center;
+    }
+    .photo-preview span {
+      color: #94a3b8;
+      font-size: 12px;
+      text-align: center;
+    }
+    .photo-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .file-input-label {
+      display: inline-block;
+      padding: 10px 20px;
+      background: #eef2ff;
+      color: #5b21b6;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .file-input-label:hover {
+      background: #e0e7ff;
+    }
+    input[type="file"] {
+      display: none;
     }
  
     .submit-btn {
@@ -201,7 +292,6 @@ while ($row = mysqli_fetch_assoc($eventsResult)) {
     }
     .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(91,33,182,.4); }
  
-    /* Events Table */
     .table-card {
       background: #fff; border-radius: 20px;
       border: 1px solid var(--border); box-shadow: 0 4px 20px rgba(15,23,42,.04);
@@ -229,7 +319,9 @@ while ($row = mysqli_fetch_assoc($eventsResult)) {
     .badge-student    { background: #ede9fe; color: #5b21b6; }
  
     .event-title-cell { font-weight: 700; }
-    .event-emoji-cell { font-size: 22px; text-align: center; }
+    .event-image-cell { width: 60px; text-align: center; }
+    .event-image-cell img { width: 50px; height: 50px; border-radius: 10px; object-fit: cover; }
+    .event-image-cell span { font-size: 28px; }
  
     .delete-btn {
       padding: 8px 14px; border-radius: 10px; border: none;
@@ -242,7 +334,6 @@ while ($row = mysqli_fetch_assoc($eventsResult)) {
     .empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
     .empty-state p { margin: 0; font-size: 15px; }
  
-    /* Responsive */
     @media (max-width: 1200px) { .content-grid { grid-template-columns: 1fr; } .form-card { position: static; } }
     @media (max-width: 1100px) {
       .app-shell { grid-template-columns: 1fr; }
@@ -256,7 +347,6 @@ while ($row = mysqli_fetch_assoc($eventsResult)) {
 <body>
 <div class="app-shell">
  
-  <!-- Sidebar -->
   <aside class="sidebar">
     <div class="sidebar-brand">
       <div class="nav-logo">
@@ -279,7 +369,6 @@ while ($row = mysqli_fetch_assoc($eventsResult)) {
     </div>
   </aside>
  
-  <!-- Main -->
   <main class="main-area">
     <header class="topbar">
       <div>
@@ -303,7 +392,6 @@ while ($row = mysqli_fetch_assoc($eventsResult)) {
       </div>
     </header>
  
-    <!-- Alerts -->
     <?php if ($success): ?>
       <div class="alert alert-success">✅ <?= $success ?></div>
     <?php endif; ?>
@@ -313,12 +401,12 @@ while ($row = mysqli_fetch_assoc($eventsResult)) {
  
     <div class="content-grid">
  
-      <!-- ── Add Event Form ── -->
+      <!-- Add Event Form with Image Upload -->
       <div class="form-card">
         <h2>➕ Add New Event</h2>
-        <p>Fill in the details below. It will appear instantly on the student Events page.</p>
+        <p>Fill in the details below. Upload an image to replace the event icon.</p>
  
-        <form method="POST" action="admin_events.php">
+        <form method="POST" action="admin_events.php" enctype="multipart/form-data">
           <input type="hidden" name="action" value="add" />
  
           <div class="form-group">
@@ -357,19 +445,25 @@ while ($row = mysqli_fetch_assoc($eventsResult)) {
           </div>
  
           <div class="form-group">
-            <label for="image_emoji">Event Icon (Emoji)</label>
-            <div class="emoji-row">
-              <input type="text" id="image_emoji" name="image_emoji" value="📅" maxlength="4"
-                     oninput="document.getElementById('emojiPreview').textContent=this.value||'📅'" />
-              <div class="emoji-preview" id="emojiPreview">📅</div>
+            <label>Event Image (Upload photo - this will replace the emoji icon)</label>
+            <div class="photo-upload">
+              <div class="photo-preview" id="photoPreview">
+                <span>📷 Click to upload image</span>
+              </div>
+              <label class="file-input-label" for="event_photo">
+                📸 Choose Image (JPG, PNG, GIF, WEBP, max 5MB)
+              </label>
+              <input type="file" id="event_photo" name="event_photo" accept="image/jpeg,image/png,image/gif,image/webp" 
+                     onchange="previewImage(this)" />
             </div>
+            <small style="font-size: 11px; color: #64748b; margin-top: 5px;">Recommended size: 400x300px. Images will be displayed on the student events page.</small>
           </div>
  
           <button type="submit" class="submit-btn">Publish Event</button>
         </form>
       </div>
  
-      <!-- ── Events Table ── -->
+      <!-- Events Table -->
       <div class="table-card">
         <div class="table-header">
           <h2>All Events</h2>
@@ -385,18 +479,24 @@ while ($row = mysqli_fetch_assoc($eventsResult)) {
           <table class="events-table">
             <thead>
               <tr>
-                <th style="width:44px"></th>
+                <th style="width:60px">Image</th>
                 <th>Title</th>
                 <th>Category</th>
                 <th>Date</th>
                 <th>Location</th>
-                <th>Action</th>
+                <th style="width:80px">Action</th>
               </tr>
             </thead>
             <tbody>
               <?php foreach ($allEvents as $ev): ?>
                 <tr>
-                  <td class="event-emoji-cell"><?= htmlspecialchars($ev['image_emoji']) ?></td>
+                  <td class="event-image-cell">
+                    <?php if (isset($ev['event_image']) && $ev['event_image'] && file_exists('../uploads/events/' . $ev['event_image'])): ?>
+                      <img src="../uploads/events/<?= htmlspecialchars($ev['event_image']) ?>" alt="<?= htmlspecialchars($ev['title']) ?>" />
+                    <?php else: ?>
+                      <span>📅</span>
+                    <?php endif; ?>
+                  </td>
                   <td class="event-title-cell"><?= htmlspecialchars($ev['title']) ?></td>
                   <td>
                     <span class="badge badge-<?= htmlspecialchars($ev['category']) ?>">
@@ -406,8 +506,7 @@ while ($row = mysqli_fetch_assoc($eventsResult)) {
                   <td><?= date('M j, Y', strtotime($ev['event_date'])) ?></td>
                   <td style="color:var(--text-muted)"><?= htmlspecialchars($ev['location']) ?></td>
                   <td>
-                    <form method="POST" action="admin_events.php"
-                          onsubmit="return confirm('Delete this event?')">
+                    <form method="POST" action="admin_events.php" onsubmit="return confirm('Delete this event?')">
                       <input type="hidden" name="action" value="delete" />
                       <input type="hidden" name="event_id" value="<?= $ev['id'] ?>" />
                       <button type="submit" class="delete-btn">🗑 Delete</button>
@@ -416,12 +515,26 @@ while ($row = mysqli_fetch_assoc($eventsResult)) {
                 </tr>
               <?php endforeach; ?>
             </tbody>
-          </table>
+          可有
         <?php endif; ?>
       </div>
- 
     </div>
   </main>
 </div>
+
+<script>
+function previewImage(input) {
+    const preview = document.getElementById('photoPreview');
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.innerHTML = '<img src="' + e.target.result + '" alt="Preview" />';
+        };
+        reader.readAsDataURL(input.files[0]);
+    } else {
+        preview.innerHTML = '<span>📷 Click to upload image</span>';
+    }
+}
+</script>
 </body>
 </html>

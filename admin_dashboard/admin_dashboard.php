@@ -201,7 +201,7 @@
   <!-- Main -->
   <main class="main-area">
     <header class="topbar">
-      <p class="user-greeting">Hello ! , Admin </p>
+      <p class="user-greeting">Hello, Admin! </p>
       <div class="topbar-right">
         
       

@@ -226,7 +226,7 @@ $fullName  = $user['first_name'] . ' ' . $user['last_name'];
   <!-- Main -->
   <main class="main-area">
     <header class="topbar">
-      <p class="user-greeting">Hello ! , <?= htmlspecialchars($fullName) ?></p>
+      <p class="user-greeting">Hello, <?= htmlspecialchars($fullName) ?>!</p>
       <div class="topbar-right">
         <button type="button" class="chatbot-btn" title="AI Assistant" onclick="alert('Chatbot coming soon!')">🤖</button>
        <div class="profile-card">
