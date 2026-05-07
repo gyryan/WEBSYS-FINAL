@@ -431,6 +431,10 @@ session_start();
         </div>
       </form>
       <a href="home.php" class="btn-back-home">← Go Back to Home Page</a>
+      <div style="text-align: center; margin-top: 20px;">
+        <p style="font-size: 12px; color: #94a3b8; margin-bottom: 8px;">Are you an administrator?</p>
+        <a href="admin-login.php" style="display: inline-block; font-size: 13px; color: #1e3a8a; font-weight: 700; text-decoration: none; padding: 8px 16px; border: 1.5px solid #1e3a8a; border-radius: 8px; transition: all 0.2s;">🔐 Admin Login</a>
+      </div>
     </div>
 
     <!-- Signup Form (hidden initially) -->

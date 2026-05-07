@@ -85,6 +85,34 @@ ALTER TABLE `students`
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `admins`
+--
+
+CREATE TABLE `admins` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `admin_id` varchar(20) NOT NULL UNIQUE,
+  `first_name` varchar(100) NOT NULL,
+  `last_name` varchar(100) NOT NULL,
+  `email` varchar(150) NOT NULL UNIQUE,
+  `password` varchar(255) NOT NULL,
+  `role` varchar(50) DEFAULT 'admin',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `admin_id` (`admin_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `admins`
+--
+
+INSERT INTO `admins` (`admin_id`, `first_name`, `last_name`, `email`, `password`, `role`, `created_at`) VALUES
+('ADMIN001', 'QCU', 'Administrator', 'admin@qcu.edu.ph', '$2y$10$YIjlrWyXYfVnVPfVVJOAg.gH7.6D7rVJXy6q7p7h8n9k0l1m2n3o4', 'admin', NOW());
+
+-- Password: admin123 (hashed with password_hash())
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `schedules`
 --
 

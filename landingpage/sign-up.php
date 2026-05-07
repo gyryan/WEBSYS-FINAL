@@ -767,9 +767,9 @@ session_start();
     }
     
     const email = document.getElementById('email').value;
-    const emailPattern = /^[a-zA-Z0-9._%+-]+@qcu\.edu\.ph$/;
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!emailPattern.test(email)) {
-      errors.push('Email must be a valid @qcu.edu.ph address');
+      errors.push('Email must be a valid email address');
       isValid = false;
     }
     
