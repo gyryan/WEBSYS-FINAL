@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_schedule'])) {
             room = ?, 
             professor = ? 
             WHERE id = ?");
-        mysqli_stmt_bind_param($stmt, "sssiisssi", $courseCode, $courseName, $section, $units, $day, $time, $room, $professor, $id);
+        mysqli_stmt_bind_param($stmt, "sssissssi", $courseCode, $courseName, $section, $units, $day, $time, $room, $professor, $id);
         if (mysqli_stmt_execute($stmt)) {
             $_SESSION['message'] = "Schedule updated successfully!";
         } else {

@@ -8,7 +8,7 @@ if (!isset($_SESSION['student_id'])) {
     exit;
 }
 
-// Fetch student data from DB
+// Fetch student data
 $stmt = mysqli_prepare($conn, "SELECT * FROM students WHERE student_id = ?");
 mysqli_stmt_bind_param($stmt, 's', $_SESSION['student_id']);
 mysqli_stmt_execute($stmt);
@@ -21,6 +21,22 @@ $picPath = $user['profile_pic']
 // Get initials for avatar
 $initials = strtoupper(substr($user['first_name'], 0, 1) . substr($user['last_name'], 0, 1));
 $fullName  = $user['first_name'] . ' ' . $user['last_name'];
+
+// Fetch all announcements
+$announcements_query = "SELECT * FROM announcements ORDER BY created_at DESC";
+$announcements_result = mysqli_query($conn, $announcements_query);
+$announcements = [];
+while ($row = mysqli_fetch_assoc($announcements_result)) {
+    $announcements[] = $row;
+}
+
+// Fetch upcoming events
+$events_query = "SELECT * FROM events WHERE event_date >= CURDATE() ORDER BY event_date LIMIT 5";
+$events_result = mysqli_query($conn, $events_query);
+$events = [];
+while ($row = mysqli_fetch_assoc($events_result)) {
+    $events[] = $row;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -51,10 +67,8 @@ $fullName  = $user['first_name'] . ' ' . $user['last_name'];
     button { font-family: inherit; cursor: pointer; }
     a { text-decoration: none; color: inherit; }
 
-    /* ── App Shell ── */
     .app-shell { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
 
-    /* ── Sidebar ── */
     .sidebar {
       background: linear-gradient(180deg,#3b0d51 0%,#14132b 100%);
       color: #f8fafc; padding: 32px 24px;
@@ -91,10 +105,8 @@ $fullName  = $user['first_name'] . ' ' . $user['last_name'];
     }
     .logout-button:hover { background: rgba(255,255,255,.08); }
 
-    /* ── Main ── */
     .main-area { padding: 28px 32px; }
 
-    /* ── Topbar ── */
     .topbar {
       display: flex; flex-wrap: wrap; justify-content: space-between;
       align-items: center; gap: 24px; margin-bottom: 28px;
@@ -106,86 +118,180 @@ $fullName  = $user['first_name'] . ' ' . $user['last_name'];
       border: 1px solid var(--border); background: #fff; color: #7c3aed;
       display: grid; place-items: center; font-size: 22px;
       transition: background .2s, transform .2s, box-shadow .2s;
-      box-shadow: 0 2px 8px rgba(15,23,42,.04);
     }
-    .chatbot-btn:hover { background: var(--accent-soft); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(91,33,182,.12); }
+    .chatbot-btn:hover { background: var(--accent-soft); transform: translateY(-1px); }
     .profile-card {
       display: flex; align-items: center; gap: 16px;
       padding: 14px 18px; background: #fff;
       border: 1px solid var(--border); border-radius: 18px;
     }
     .profile-avatar {
-      width: 52px; height: 52px; border-radius: 16px;
+      width: 52px; height: 52px; border-radius: 50%;
       background: linear-gradient(135deg,#7c3aed,#2563eb);
       color: #fff; place-items: center; font-weight: 800; display: grid;
+      overflow: hidden;
+    }
+    .profile-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
     .profile-name { margin: 0; font-weight: 700; }
     .profile-email { margin: 0; color: var(--text-muted); font-size: 13px; }
 
-    /* ── Dashboard Grid ── */
     .dashboard-grid {
       display: grid;
-      grid-template-columns: minmax(320px, 1.6fr) minmax(280px, 1fr);
+      grid-template-columns: 1fr 380px;
       gap: 24px;
     }
 
-    /* ── Card ── */
-    .card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 24px; box-shadow: 0 4px 24px rgba(15,23,42,.05);
-      padding: 24px;
+    /* Left Column - Announcements */
+    .announcements-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(15,23,42,.05);
     }
     .card-header {
-      display: flex; align-items: center; gap: 10px; margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
     }
-    .card-header h2 { margin: 0; font-size: 20px; font-weight: 800; }
+    .card-header h2 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 800;
+    }
     .card-header-icon { font-size: 20px; }
 
-    /* ── Event List ── */
-    .event-list { display: grid; gap: 14px; }
-    .event-item {
-      display: grid; grid-template-columns: 72px 1fr;
-      gap: 16px; align-items: center;
-      padding: 14px 16px; border-radius: 16px;
-      border: 1px solid var(--border);
+    .announcements-container {
+      display: flex;
+      flex-direction: column;
+    }
+    .announcement-item {
+      padding: 24px;
+      border-bottom: 1px solid var(--border);
+      transition: background .2s;
+    }
+    .announcement-item:last-child {
+      border-bottom: none;
+    }
+    .announcement-item:hover {
       background: #fafafa;
-      transition: box-shadow .2s, transform .2s;
     }
-    .event-item:hover { box-shadow: 0 4px 16px rgba(15,23,42,.08); transform: translateY(-1px); }
-    .event-thumb {
-      width: 72px; height: 56px; border-radius: 12px;
-      background: linear-gradient(135deg,#eef2ff,#ede9fe);
-      display: grid; place-items: center; font-size: 26px;
-      flex-shrink: 0;
+   .announcement-image {
+      width: 20%;
+      height: auto;
+      max-height: 500px;
+      object-fit: cover;
+      object-position: center;
+      border-radius: 16px;
+      margin-bottom: 16px;
+      background: #f1f5f9;
     }
-    .event-info h3 { margin: 0 0 4px; font-size: 14px; font-weight: 700; }
-    .event-info p  { margin: 0 0 2px; font-size: 12px; color: var(--text-muted); }
-    .event-link {
-      display: inline-flex; align-items: center; gap: 4px;
-      margin-top: 6px; font-size: 12px; font-weight: 700; color: #2563eb;
-    }
-    .event-link:hover { text-decoration: underline; }
 
-    /* ── Academic Overview ── */
-    .overview-grid { display: grid; gap: 14px; }
-    .overview-item {
-      border-radius: 16px; padding: 18px 20px;
-      border-left: 4px solid transparent;
+    .announcement-image:hover {
+      transform: scale(1.02);
+    }
+    .announcement-title {
+      font-size: 18px;
+      font-weight: 800;
+      margin: 0 0 10px;
+      color: var(--text);
+    }
+    .announcement-description {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin: 0 0 12px;
+    }
+    .announcement-date {
+      font-size: 12px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .no-announcements {
+      text-align: center;
+      padding: 60px 24px;
+      color: var(--text-muted);
+    }
+
+    /* Right Column - Events */
+    .events-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(15,23,42,.05);
+    }
+    .event-list {
+      display: flex;
+      flex-direction: column;
+    }
+    .event-item {
+      display: flex;
+      gap: 16px;
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      transition: background .2s;
+    }
+    .event-item:last-child {
+      border-bottom: none;
+    }
+    .event-item:hover {
+      background: #fafafa;
+    }
+    .event-date {
+      min-width: 65px;
+      text-align: center;
+    }
+    .event-day {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1;
+    }
+    .event-month {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+    .event-info h4 {
+      margin: 0 0 6px;
+      font-size: 15px;
+      font-weight: 700;
+    }
+    .event-info p {
+      margin: 0;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .no-events {
+      text-align: center;
+      padding: 40px 24px;
+      color: var(--text-muted);
+    }
+    .view-all-link {
+      display: block;
+      padding: 14px 24px;
+      text-align: center;
       background: var(--surface-strong);
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 13px;
+      text-decoration: none;
+      transition: background .2s;
     }
-    .overview-item.amber  { border-color: #d97706; background: #fffbeb; }
-    .overview-item.blue   { border-color: #2563eb; background: #eff6ff; }
-    .overview-item.purple { border-color: #7c3aed; background: #f5f3ff; }
-    .overview-label { display: block; font-size: 12px; color: var(--text-muted); font-weight: 600; margin-bottom: 6px; }
-    .overview-value {
-      display: block; font-size: 32px; font-weight: 800; line-height: 1; margin-bottom: 4px;
+    .view-all-link:hover {
+      background: var(--accent-soft);
     }
-    .overview-item.amber  .overview-value { color: #d97706; }
-    .overview-item.blue   .overview-value { color: #1d4ed8; }
-    .overview-item.purple .overview-value { color: #7c3aed; }
-    .overview-note { display: block; font-size: 12px; color: var(--text-muted); }
 
-    /* ── Responsive ── */
     @media (max-width: 1100px) {
       .app-shell { grid-template-columns: 1fr; }
       .sidebar { position: static; height: auto; }
@@ -199,7 +305,6 @@ $fullName  = $user['first_name'] . ' ' . $user['last_name'];
 <body>
 <div class="app-shell">
 
-  <!-- Sidebar -->
   <aside class="sidebar">
     <div class="sidebar-brand">
       <div class="nav-logo">
@@ -210,29 +315,27 @@ $fullName  = $user['first_name'] . ' ' . $user['last_name'];
         <span class="brand-sub">Student Dashboard</span>
       </div>
     </div>
-    <nav class="sidebar-nav" aria-label="Dashboard navigation">
-      <a href="dashboard.php"    class="nav-item active"><span class="nav-item-icon">🏠</span>Dashboard</a>
-      <a href="events.php"       class="nav-item"><span class="nav-item-icon">📅</span>Events</a>
+    <nav class="sidebar-nav">
+      <a href="dashboard.php"   class="nav-item active"><span class="nav-item-icon">🏠</span>Dashboard</a>
+      <a href="events.php"      class="nav-item"><span class="nav-item-icon">📅</span>Events</a>
       <a href="SchoolSched.php" class="nav-item"><span class="nav-item-icon">📋</span>Schedule</a>
-      <a href="grades.php"       class="nav-item"><span class="nav-item-icon">📝</span>Grades</a>
-  
-      <a href="account.php"      class="nav-item"><span class="nav-item-icon">👤</span>Account</a>
+      <a href="grades.php"      class="nav-item"><span class="nav-item-icon">📝</span>Grades</a>
+      <a href="account.php"     class="nav-item"><span class="nav-item-icon">👤</span>Account</a>
     </nav>
-    <div class="sidebar-footer"> 
-        <button type="button" class="logout-button" onclick="window.location.href='../landingpage/logout.php'">  Logout</button>
+    <div class="sidebar-footer">
+      <button type="button" class="logout-button" onclick="window.location.href='../landingpage/logout.php'">Logout</button>
     </div>
   </aside>
 
-  <!-- Main -->
   <main class="main-area">
     <header class="topbar">
-      <p class="user-greeting">Hello, <?= htmlspecialchars($fullName) ?>!</p>
+      <p class="user-greeting">Welcome back, <?= htmlspecialchars($user['first_name']) ?>! 👋</p>
       <div class="topbar-right">
         <button type="button" class="chatbot-btn" title="AI Assistant" onclick="alert('Chatbot coming soon!')">🤖</button>
-       <div class="profile-card">
-          <div class="profile-avatar" style="width: 80px; height: 80px; border-radius: 50%; overflow: hidden;">
-            <?php if ($picPath): ?>
-              <img src="<?= htmlspecialchars($picPath) ?>" alt="Profile Picture" style="width:100%; height:100%; object-fit:cover;" />
+        <div class="profile-card">
+          <div class="profile-avatar">
+            <?php if ($picPath && file_exists($picPath)): ?>
+              <img src="<?= htmlspecialchars($picPath) ?>" alt="Profile Picture" />
             <?php else: ?>
               <?= $initials ?>
             <?php endif; ?>
@@ -246,63 +349,69 @@ $fullName  = $user['first_name'] . ' ' . $user['last_name'];
     </header>
 
     <div class="dashboard-grid">
+      <!-- Left Column: Announcements -->
+      <div class="announcements-card">
+        <div class="card-header">
+          <span class="card-header-icon">📢</span>
+          <h2>What's Happening at QCU</h2>
+        </div>
+        <div class="announcements-container">
+          <?php if (empty($announcements)): ?>
+            <div class="no-announcements">
+              <p>No announcements yet. Check back later for updates!</p>
+            </div>
+          <?php else: ?>
+            <?php foreach ($announcements as $announcement): ?>
+              <div class="announcement-item">
+                <?php if ($announcement['image_path'] && file_exists('../uploads/' . $announcement['image_path'])): ?>
+                  <img src="../uploads/<?= htmlspecialchars($announcement['image_path']) ?>" alt="Announcement" class="announcement-image">
+                <?php endif; ?>
+                <?php if ($announcement['title']): ?>
+                  <h3 class="announcement-title"><?= htmlspecialchars($announcement['title']) ?></h3>
+                <?php endif; ?>
+                <?php if ($announcement['description']): ?>
+                  <p class="announcement-description"><?= nl2br(htmlspecialchars($announcement['description'])) ?></p>
+                <?php endif; ?>
+                <div class="announcement-date">
+                  📅 <?= date('F d, Y \a\t h:i A', strtotime($announcement['created_at'])) ?>
+                </div>
+              </div>
+            <?php endforeach; ?>
+          <?php endif; ?>
+        </div>
+      </div>
 
-      <!-- Upcoming Events -->
-      <div class="card">
+      <!-- Right Column: Upcoming Events -->
+      <div class="events-card">
         <div class="card-header">
           <span class="card-header-icon">📅</span>
           <h2>Upcoming Events</h2>
         </div>
-        <div class="event-list" id="eventList"></div>
-      </div>
-
-      <!-- Academic Overview -->
-      <div class="card">
-        <div class="card-header">
-          <h2>Academic Overview</h2>
+        <div class="event-list">
+          <?php if (empty($events)): ?>
+            <div class="no-events">
+              <p>No upcoming events scheduled.</p>
+            </div>
+          <?php else: ?>
+            <?php foreach ($events as $event): ?>
+              <div class="event-item">
+                <div class="event-date">
+                  <div class="event-day"><?= date('d', strtotime($event['event_date'])) ?></div>
+                  <div class="event-month"><?= date('M', strtotime($event['event_date'])) ?></div>
+                </div>
+                <div class="event-info">
+                  <h4><?= htmlspecialchars($event['event_name']) ?></h4>
+                  <p><?= htmlspecialchars($event['location'] ?? 'Location TBA') ?></p>
+                  <p><?= date('g:i A', strtotime($event['event_time'] ?? '00:00:00')) ?></p>
+                </div>
+              </div>
+            <?php endforeach; ?>
+          <?php endif; ?>
         </div>
-        <div class="overview-grid">
-          <div class="overview-item amber">
-            <span class="overview-label">Current GPA</span>
-            <span class="overview-value">3.75</span>
-            <span class="overview-note">Excellent standing</span>
-          </div>
-          <div class="overview-item blue">
-            <span class="overview-label">Enrolled Units</span>
-            <span class="overview-value">21</span>
-            <span class="overview-note">This semester</span>
-          </div>
-          <div class="overview-item purple">
-            <span class="overview-label">Year Level</span>
-            <span class="overview-value" style="font-size:24px;">2nd Year</span>
-            <span class="overview-note">Bachelor of Science in Computer Science</span>
-          </div>
-        </div>
+        <a href="events.php" class="view-all-link">View All Events →</a>
       </div>
-
     </div>
   </main>
 </div>
-
-<script>
-  const dashEvents = [
-    { emoji: "✍️", title: "Midterm Examination",      location: "Room 301, Engineering Building", time: "9:00 AM - 12:00 PM" },
-    { emoji: "💻", title: "Project Submission",         location: "Online - Student Portal",        time: "11:59 PM" },
-    { emoji: "🏢", title: "Career Fair",                location: "University Auditorium",          time: "1:00 PM - 5:00 PM" },
-    { emoji: "🎉", title: "University Foundation Day",  location: "QCU Campus",                     time: "All Day Event" },
-  ];
-
-  document.getElementById("eventList").innerHTML = dashEvents.map(e => `
-    <div class="event-item">
-      <div class="event-thumb">${e.emoji}</div>
-      <div class="event-info">
-        <h3>${e.title}</h3>
-        <p>${e.location}</p>
-        <p>${e.time}</p>
-        <a class="event-link" href="events.html">👁 View Details</a>
-      </div>
-    </div>
-  `).join("");
-</script>
 </body>
 </html>

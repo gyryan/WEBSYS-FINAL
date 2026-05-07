@@ -84,26 +84,76 @@ $students_query = mysqli_query($conn, "SELECT student_id, first_name, last_name,
 
 function calculateGradePoint($grade) {
     $grade_map = [
-        'A' => 4.00, 'A-' => 3.70,
-        'B+' => 3.30, 'B' => 3.00, 'B-' => 2.70,
-        'C+' => 2.30, 'C' => 2.00, 'C-' => 1.70,
-        'D' => 1.00, 'F' => 0.00,
-        'INC' => 0.00, 'W' => 0.00
+        '1.00' => 1.00,
+        '1.25' => 1.25,
+        '1.50' => 1.50,
+        '1.75' => 1.75,
+        '2.00' => 2.00,
+        '2.25' => 2.25,
+        '2.50' => 2.50,
+        '2.75' => 2.75,
+        '3.00' => 3.00,
+        '5.00' => 5.00,
+        'INC' => null,
+        'W' => null
     ];
-    return $grade_map[$grade] ?? null;
+    return isset($grade_map[$grade]) ? $grade_map[$grade] : null;
 }
 
 function calculateGPA($courses) {
-    $total_points = 0;
+    $total_grade_points = 0;
     $total_units = 0;
+    
     foreach ($courses as $course) {
-        if ($course['grade_point'] && $course['grade'] != 'INC' && $course['grade'] != 'W') {
-            $total_points += $course['grade_point'] * $course['units'];
-            $total_units += $course['units'];
+        // Skip if no grade or grade is INC/W
+        if (empty($course['grade']) || $course['grade'] == 'INC' || $course['grade'] == 'W') {
+            continue;
+        }
+        
+        $gradeValue = $course['grade'];
+        $units = floatval($course['units']);
+        
+        // Get grade point based on the numeric grade
+        $gradePoint = null;
+        
+        // Handle numeric grade values (1.00, 1.25, etc.)
+        if (is_numeric($gradeValue)) {
+            $numericGrade = floatval($gradeValue);
+            if ($numericGrade == 1.00) $gradePoint = 1.00;
+            elseif ($numericGrade == 1.25) $gradePoint = 1.25;
+            elseif ($numericGrade == 1.50) $gradePoint = 1.50;
+            elseif ($numericGrade == 1.75) $gradePoint = 1.75;
+            elseif ($numericGrade == 2.00) $gradePoint = 2.00;
+            elseif ($numericGrade == 2.25) $gradePoint = 2.25;
+            elseif ($numericGrade == 2.50) $gradePoint = 2.50;
+            elseif ($numericGrade == 2.75) $gradePoint = 2.75;
+            elseif ($numericGrade == 3.00) $gradePoint = 3.00;
+            elseif ($numericGrade == 5.00) $gradePoint = 5.00;
+        }
+        // Handle letter grades if any
+        elseif ($gradeValue == 'A') $gradePoint = 4.00;
+        elseif ($gradeValue == 'B') $gradePoint = 3.00;
+        elseif ($gradeValue == 'C') $gradePoint = 2.00;
+        elseif ($gradeValue == 'D') $gradePoint = 1.00;
+        elseif ($gradeValue == 'F') $gradePoint = 0.00;
+        
+        if ($gradePoint !== null && $units > 0) {
+            $total_grade_points += $gradePoint * $units;
+            $total_units += $units;
         }
     }
-    return $total_units > 0 ? number_format($total_points / $total_units, 2) : 'N/A';
+    
+    return $total_units > 0 ? number_format($total_grade_points / $total_units, 2) : '0.00';
 }
+
+function getTotalEnrolledUnits($courses) {
+    $total_units = 0;
+    foreach ($courses as $course) {
+        $total_units += floatval($course['units']);
+    }
+    return $total_units;
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -421,7 +471,7 @@ function calculateGPA($courses) {
     <header class="topbar">
       <h1 class="page-title">Grade Management</h1>
       <div class="topbar-right">
-        <button type="button" class="chatbot-btn" title="AI Assistant" onclick="alert('Chatbot coming soon!')">🤖</button>
+        <button type="button" class="chatbot-btn" title="AI Assistant" style="width:52px; height:52px; border-radius:16px; border:1px solid rgba(148,163,184,.15); background:#fff; color:#7c3aed; display:grid; place-items:center; font-size:22px;" onclick="alert('Chatbot coming soon!')">🤖</button>
       </div>
     </header>
 
@@ -514,7 +564,7 @@ function calculateGPA($courses) {
                         <option value="5.00" <?= ($course['grade'] ?? '') == '5.00' ? 'selected' : '' ?>>5.00 - Failed</option>
                         <option value="INC" <?= ($course['grade'] ?? '') == 'INC' ? 'selected' : '' ?>>INC - Incomplete</option>
                         <option value="W" <?= ($course['grade'] ?? '') == 'W' ? 'selected' : '' ?>>W - Withdrawn</option>
-                    </select>
+                      </select>
                     </td>
                     <td>
                       <?php if (!empty($course['grade'])): ?>
