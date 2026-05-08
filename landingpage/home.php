@@ -6,6 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>QCU Student Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Lora:ital,wght@0,400;1,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 <style>
   html {
   scroll-behavior: smooth;
@@ -233,16 +234,67 @@
   }
  
   .btn-gold:hover { background: var(--gold-light); transform: translateY(-2px); }
- 
-  /* ── STATS BAR ── */
-  .stats-bar {
-    background: rgb(238, 230, 187);
-    display: flex;
-    justify-content: center;
-    gap: 0;
-    overflow: hidden;
-  }
- 
+      /* ── ACHIEVEMENTS ── */
+      .achievements {
+      text-align: center;
+      padding: 60px 20px 20px;
+      background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+    }
+
+    .achievements h2 {
+      font-size: clamp(28px, 3vw, 42px);
+      font-weight: 900;
+      color: var(--dark);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      position: relative;
+      display: inline-block;
+    }
+
+    .achievements h2::after {
+      content: '';
+      position: absolute;
+      bottom: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 4px;
+      background: var(--gold);
+      border-radius: 2px;
+    }
+          /* ── CAROUSEL BAR ── */
+          .carousel {
+          margin: 100px auto;
+          width: 90%;
+          border: 5px solid white;
+          display: flex;
+          overflow: hidden;
+        }
+
+        .group {
+          display: flex;
+          align-items: center;
+          gap: 1em;
+          padding-right: 1em;
+          animation: scroll 5s infinite linear;
+         
+        }
+
+        .card {
+          flex: 0 0 5em;
+          height: 5em;
+          padding: 1em;
+          background: cornflowerblue;
+          font-size: 3em;
+          border-radius: .2em;
+          text-align: center;
+          align-content: center;
+        }
+
+        @keyframes scroll {
+          from { transform: translateX(0); }
+          to   { transform: translateX(-100%); }
+        }
   .stat-item {
     flex: 1;
     max-width: 320px;
@@ -627,37 +679,52 @@
     line-height: 1.8;
   }
  
-  .contact-cards {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-  }
- 
-  .contact-card {
-    border: 1px solid #ddd;
-    border-radius: 12px;
-    padding: 36px 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    background: var(--white);
-  }
-  .contact-card img{
-    height: auto;
-    width:50px;
-  }
- 
- 
-  .contact-icon {
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-  }
+  .contact-card .social-links {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.contact-card .social-links a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  transition: transform 0.2s, background 0.2s;
+  text-decoration: none;
+}
+
+.contact-card .social-links a:hover {
+  transform: translateY(-2px);
+}
+
+.contact-card .social-links a.website-link {
+  background: #eef2ff;
+}
+
+.contact-card .social-links a.website-link:hover {
+  background: #e0e7ff;
+}
+
+.contact-card .social-links a.fb-link {
+  background: #e7f3ff;
+}
+
+.contact-card .social-links a.fb-link:hover {
+  background: #dbeafe;
+}
+
+.contact-card .social-links a.ig-link {
+  background: #fdf2f8;
+}
+
+.contact-card .social-links a.ig-link:hover {
+  background: #fce7f3;
+}
  
   .contact-icon.phone { background: var(--gold); }
   .contact-icon.email { background: var(--purple); }
@@ -672,6 +739,75 @@
     font-size: 13px;
     color: var(--gray);
   }
+
+  .contact-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.contact-card {
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 36px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  background: var(--white);
+}
+
+.contact-card img {
+  height: auto;
+  width: 50px;
+}
+
+.contact-card .social-links {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.contact-card .social-links a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  transition: transform 0.2s, background 0.2s;
+  text-decoration: none;
+}
+
+.contact-card .social-links a:hover {
+  transform: translateY(-2px);
+}
+
+.contact-card .social-links a.website-link {
+  background: #eef2ff;
+}
+
+.contact-card .social-links a.website-link:hover {
+  background: #e0e7ff;
+}
+
+.contact-card .social-links a.fb-link {
+  background: #e7f3ff;
+}
+
+.contact-card .social-links a.fb-link:hover {
+  background: #dbeafe;
+}
+
+.contact-card .social-links a.ig-link {
+  background: #fdf2f8;
+}
+
+.contact-card .social-links a.ig-link:hover {
+  background: #fce7f3;
+}
  
   /* ── FOOTER ── */
   footer {
@@ -724,17 +860,28 @@
   </div>
 </section>
 
+<div class="achievements">
+  <h2>Quezon City University Achievements</h2>
+</div>
 <!-- STATS -->
-<section class="stats-bar">
-  <div class="stat-item">
-    <div class="stat-num-1">#1</div>
-    <div class="stat-label">International University of The Philippines</div>
+<div class="carousel">
+  <div class="group">
+    <div class="card">1</div>
+    <div class="card">2</div>
+    <div class="card">3</div>
+    <div class="card">4</div>
+    <div class="card">5</div>
+    <div class="card">6</div>
   </div>
-  <div class="stat-item">
-    <div class="stat-num-2">30+</div>
-    <div class="stat-label">Years of Excellence</div>
+    <div aria-hidden class="group">
+    <div class="card">1</div>
+    <div class="card">2</div>
+    <div class="card">3</div>
+    <div class="card">4</div>
+    <div class="card">5</div>
+    <div class="card">6</div>
   </div>
-</section>
+</div>
 
 <!-- ABOUT -->
 <section id="about">
@@ -854,20 +1001,33 @@
 
     <div class="contact-cards">
       <div class="contact-card">
-       <img src="../images/phone-svgrepo-com.svg" alt="">
+        <img src="../images/phone-svgrepo-com.svg" alt="">
         <h4>Phone</h4>
-        <p>+63 123 456 7890</p>
-      </div>
-      <div class="contact-card">
-        <img src="../images/email-1573-svgrepo-com.svg" alt="">
-        <h4>Email</h4>
-        <p>info@qcu.edu.ph</p>
+        <p>(02)8806-3049</p>
       </div>
       <div class="contact-card">
         <img src="../images/location-pin-svgrepo-com.svg" alt="">
         <h4>Location</h4>
-        <p>Quezon City, Philippines</p>
+        <p>673 Quirino Highway, San Bartolome, Novaliches, Quezon City</p>
       </div>
+      <div class="contact-card">
+        <img src="../images/email-1573-svgrepo-com.svg" alt="">
+        <h4>MEDIA</h4>
+        <div class="social-links">
+          <a href="https://qcu.edu.ph/" target="_blank" class="website-link" title="QCU Website">
+            <i class="fa-solid fa-globe" style="color: #1e3a8a; font-size: 18px;"></i>
+          </a>
+          <a href="https://www.facebook.com/qcu1994" target="_blank" class="fb-link" title="Facebook">
+            <i class="fa-brands fa-facebook-f" style="color: #1877f2; font-size: 18px;"></i>
+          </a>
+          <a href="https://www.instagram.com/" target="_blank" class="ig-link" title="Instagram">
+            <i class="fa-brands fa-instagram" style="color: #e4405f; font-size: 18px;"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
     </div>
   </div>
 </section>
