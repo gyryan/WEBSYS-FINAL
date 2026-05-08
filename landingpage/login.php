@@ -332,7 +332,7 @@ session_start();
     }
 
     .purple-card {
-      background: linear-gradient(135deg, #7b1fa2, #e91e63);
+      background: linear-gradient(135deg, #bdadc5, #e91e63);
       position: relative;
     }
 
@@ -658,7 +658,7 @@ session_start();
       min-height: 580px;
       background: #fff;
       border-radius: 28px;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      box-shadow: 0 25px 50px -12px rgba(255, 255, 255, 0.25);
       display: flex;
       overflow: hidden;
       transform: scale(0.95);
@@ -672,7 +672,7 @@ session_start();
     /* ── BRAND PANEL ── */
     .brand-panel {
       flex: 1;
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      background: linear-gradient(135deg, rgb(0, 0, 247) 0%, #392698 100%);
       color: white;
       padding: 60px 40px;
       display: flex;

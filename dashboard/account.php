@@ -59,7 +59,7 @@ $fullName  = $user['first_name'] . ' ' . $user['last_name'];
 
     /* ── Sidebar ── */
     .sidebar {
-      background: linear-gradient(180deg,#3b0d51 0%,#14132b 100%);
+      background: linear-gradient(180deg,#150edb 0%, #1f2937 100%);
       color: #f8fafc; padding: 32px 24px;
       display: flex; flex-direction: column; gap: 32px;
       position: sticky; top: 0; height: 100vh;

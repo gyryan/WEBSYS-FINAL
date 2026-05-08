@@ -70,7 +70,7 @@ while ($row = mysqli_fetch_assoc($events_result)) {
     .app-shell { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
 
     .sidebar {
-      background: linear-gradient(180deg,#3b0d51 0%,#14132b 100%);
+      background: linear-gradient(180deg,#150edb 0%, #1f2937 100%);
       color: #f8fafc; padding: 32px 24px;
       display: flex; flex-direction: column; gap: 32px;
       position: sticky; top: 0; height: 100vh;
@@ -400,7 +400,7 @@ while ($row = mysqli_fetch_assoc($events_result)) {
                   <div class="event-month"><?= date('M', strtotime($event['event_date'])) ?></div>
                 </div>
                 <div class="event-info">
-                  <h4><?= htmlspecialchars($event['$jsEvents']) ?></h4>
+                  <h4><?= htmlspecialchars($event['title']) ?></h4>
                   <p><?= htmlspecialchars($event['location'] ?? 'Location TBA') ?></p>
                   <p><?= date('g:i A', strtotime($event['event_time'] ?? '00:00:00')) ?></p>
                 </div>

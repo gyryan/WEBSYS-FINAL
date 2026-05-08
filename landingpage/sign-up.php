@@ -672,7 +672,7 @@ session_start();
     /* ── BRAND PANEL ── */
     .brand-panel {
       flex: 1;
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      background: linear-gradient(135deg, rgb(0, 0, 247) 0%, #392698 100%);
       color: white;
       padding: 60px 40px;
       display: flex;
