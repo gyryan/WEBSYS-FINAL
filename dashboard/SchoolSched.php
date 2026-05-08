@@ -212,9 +212,8 @@ if ($studentSection) {
     .course-code { color: #1d4ed8; font-weight: 700; font-size: 14px; }
     .course-name-cell { font-weight: 600; }
     .section-pill {
-      display: inline-grid; place-items: center;
+      display: inline; place-items: center;
       width: 32px; height: 32px; border-radius: 50%;
-      background: #e0e7ff; color: #3730a3;
       font-size: 12px; font-weight: 700;
     }
     .units-val { color: #d97706; font-weight: 700; font-size: 15px; }
@@ -372,9 +371,9 @@ if ($studentSection) {
       <div id="listView">
         <div class="table-wrap">
           <?php if (!$studentSection): ?>
-            <div style="padding: 48px 24px; text-align: center; color: #64748b;">
+            <div style="padding: 59px 24px; text-align: center; color: #64748b;">
               <div style="font-size: 48px; margin-bottom: 12px;">🏷️</div>
-              <h3 style="margin: 0 0 8px; font-size: 18px; font-weight: 800; color: #1f2937;">No Section Assigned</h3>
+              <h3 style="margin: 0 0 8px; font-size: 20px; font-weight: 800; color: #1f2937;">No Section Assigned</h3>
               <p style="margin: 0; font-size: 14px; line-height: 1.7;">
                 You have not been assigned to a section yet.<br>
                 Please wait for your admin to assign your section, or contact the Registrar's Office.
@@ -408,7 +407,7 @@ if ($studentSection) {
               <tr>
                 <td><span class="course-code"><?= htmlspecialchars($course['course_code']) ?></span></td>
                 <td class="course-name-cell"><?= htmlspecialchars($course['course_name']) ?></td>
-                <td><span class="section-pill" style="font-size:<?= strlen($course['section']) > 2 ? '9px' : '12px' ?>;"><?= htmlspecialchars($course['section']) ?></span></td>
+                <td><span class="section-pill" style="font-size:<?= strlen($course['section']) > 2 ? '12px' : '14px' ?>;"><?= htmlspecialchars($course['section']) ?></span></td>
                 <td><span class="units-val"><?= htmlspecialchars($course['units']) ?></span></td>
                 <td class="day-cell"><?= htmlspecialchars($course['day']) ?></td>
                 <td class="time-cell"><?= htmlspecialchars($course['time']) ?></td>

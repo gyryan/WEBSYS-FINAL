@@ -400,7 +400,7 @@ while ($row = mysqli_fetch_assoc($events_result)) {
                   <div class="event-month"><?= date('M', strtotime($event['event_date'])) ?></div>
                 </div>
                 <div class="event-info">
-                  <h4><?= htmlspecialchars($event['event_name']) ?></h4>
+                  <h4><?= htmlspecialchars($event['$jsEvents']) ?></h4>
                   <p><?= htmlspecialchars($event['location'] ?? 'Location TBA') ?></p>
                   <p><?= date('g:i A', strtotime($event['event_time'] ?? '00:00:00')) ?></p>
                 </div>
