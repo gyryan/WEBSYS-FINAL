@@ -234,7 +234,7 @@
   }
  
   .btn-gold:hover { background: var(--gold-light); transform: translateY(-2px); }
-      /* ── ACHIEVEMENTS ── */
+      
       .achievements {
       text-align: center;
       padding: 60px 20px 20px;
@@ -263,38 +263,92 @@
       border-radius: 2px;
     }
           /* ── CAROUSEL BAR ── */
-          .carousel {
-          margin: 100px auto;
-          width: 90%;
-          border: 5px solid white;
-          display: flex;
-          overflow: hidden;
-        }
+          /* ── CAROUSEL BAR ── */
+          /* ── CAROUSEL BAR ── */
+.carousel {
+  margin: 100px auto;
+  width: 90%;
+  border: 5px solid white;
+  display: flex;
+  overflow: hidden;
+}
 
-        .group {
-          display: flex;
-          align-items: center;
-          gap: 1em;
-          padding-right: 1em;
-          animation: scroll 5s infinite linear;
-         
-        }
+.group {
+  display: flex;
+  align-items: center;
+  gap: 1em;
+  padding-right: 1em;
+  animation: scroll 5s infinite linear;
+  flex-shrink: 0;
+}
 
-        .card {
-          flex: 0 0 5em;
-          height: 5em;
-          padding: 1em;
-          background: cornflowerblue;
-          font-size: 3em;
-          border-radius: .2em;
-          text-align: center;
-          align-content: center;
-        }
+.carousel:hover .group {
+  animation-play-state: paused;
+}
 
-        @keyframes scroll {
-          from { transform: translateX(0); }
-          to   { transform: translateX(-100%); }
-        }
+.card {
+  flex: 0 0 5em;
+  height: 5em;
+  background: cornflowerblue;
+  font-size: 3em;
+  border-radius: .2em;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  position: relative;
+  text-decoration: none;
+  color: inherit;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0);
+  transition: background 0.3s ease;
+  border-radius: .2em;
+  z-index: 1;
+}
+
+.card:hover {
+  transform: translateY(-5px) scale(1.1);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+  z-index: 10;
+}
+
+.card:hover::before {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.card:active {
+  transform: translateY(-2px) scale(0.95);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  transition: all 0.1s ease;
+}
+
+.card:focus {
+  outline: 3px solid white;
+  outline-offset: 3px;
+}
+
+.card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: relative;
+  z-index: 0;
+}
+
+@keyframes scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-100%); }
+}
   .stat-item {
     flex: 1;
     max-width: 320px;
@@ -866,20 +920,44 @@
 <!-- STATS -->
 <div class="carousel">
   <div class="group">
-    <div class="card">1</div>
-    <div class="card">2</div>
-    <div class="card">3</div>
-    <div class="card">4</div>
-    <div class="card">5</div>
-    <div class="card">6</div>
+    <a href="https://qcu.edu.ph/qcu-holds-oath-taking-ceremony-for-newly-promoted-and-installed-faculty-and-administrative-personnel/" target="_blank" class="card">
+      <img src="../images/alcucoa.png" alt="alcucoa">
+    </a>
+    <a href="https://www.facebook.com/share/p/199tqP5wr7/" target="_blank" class="card">
+      <img src="../images/vexrobot.png" alt="vexrobot">
+    </a>
+    <a href="https://qcu.edu.ph/qcu-to-launch-solaire-hospitality-academy-through-landmark-partnership-with-qc-government/" target="_blank" class="card">
+      <img src="../images/hospitality.png" alt="hospitality">
+    </a>
+    <a href="https://qcu.edu.ph/qcu-is-recognized-in-2025-world-university-rankings/" target="_blank" class="card">
+      <img src="../images/rank15.png" alt="rank15">
+    </a>
+    <a href="https://qcu.edu.ph/qcu-samil-technical-high-school-formalize-global-academic-collaboration/" target="_blank" class="card">
+      <img src="../images/samil.png" alt="samil">
+    </a>
+    <a href="https://qcu.edu.ph/qcu-dominates-vex-u-robotics-national-championship-qualifies-for-world-stage/" target="_blank" class="card">
+      <img src="../images/vexrobot2.png" alt="vexrobot2">
+    </a>
   </div>
-    <div aria-hidden class="group">
-    <div class="card">1</div>
-    <div class="card">2</div>
-    <div class="card">3</div>
-    <div class="card">4</div>
-    <div class="card">5</div>
-    <div class="card">6</div>
+  <div aria-hidden="true" class="group">
+    <a href="https://qcu.edu.ph/qcu-holds-oath-taking-ceremony-for-newly-promoted-and-installed-faculty-and-administrative-personnel/" target="_blank" class="card">
+      <img src="../images/alcucoa.png" alt="alcucoa">
+    </a>
+    <a href="https://www.facebook.com/share/p/199tqP5wr7/" target="_blank" class="card">
+      <img src="../images/vexrobot.png" alt="vexrobot">
+    </a>
+    <a href="https://qcu.edu.ph/qcu-to-launch-solaire-hospitality-academy-through-landmark-partnership-with-qc-government/" target="_blank" class="card">
+      <img src="../images/hospitality.png" alt="hospitality">
+    </a>
+    <a href="https://qcu.edu.ph/qcu-is-recognized-in-2025-world-university-rankings/" target="_blank" class="card">
+      <img src="../images/rank15.png" alt="rank15">
+    </a>
+    <a href="https://qcu.edu.ph/qcu-samil-technical-high-school-formalize-global-academic-collaboration/" target="_blank" class="card">
+      <img src="../images/samil.png" alt="samil">
+    </a>
+    <a href="https://qcu.edu.ph/qcu-dominates-vex-u-robotics-national-championship-qualifies-for-world-stage/" target="_blank" class="card">
+      <img src="../images/vexrobot2.png" alt="vexrobot2">
+    </a>
   </div>
 </div>
 
