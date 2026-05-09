@@ -336,7 +336,7 @@ $fullName  = $user['first_name'] . ' ' . $user['last_name'];
           </div>
 
           <div class="form-group">
-            <label for="section">Section <span style="font-size:11px; color:#94a3b8; font-weight:400;">(assigned by admin)</span></label>
+            <label for="section">Section </label>
             <input type="text" id="section" value="<?= htmlspecialchars($user['section'] ?? 'Not Assigned Yet') ?>" readonly
               style="background:#f1f5f9;color:<?= !empty($user['section']) ? '#1e3a8a' : '#94a3b8' ?>;cursor:not-allowed;font-weight:<?= !empty($user['section']) ? '700' : '400' ?>;" />
           </div>

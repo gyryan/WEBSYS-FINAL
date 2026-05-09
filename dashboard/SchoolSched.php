@@ -156,7 +156,7 @@ if ($studentSection) {
     }
     .stat-card.blue   { background: linear-gradient(135deg,#1e3a8a,#1d4ed8); }
     .stat-card.amber  { background: linear-gradient(135deg,#92400e,#d97706); }
-    .stat-card.green  { background: linear-gradient(135deg,#065f46,#059669); }
+    .stat-card.green  { background: linear-gradient(135deg,#af822a,#9d6c0f); }
     .stat-info { display: flex; flex-direction: column; gap: 6px; }
     .stat-label { font-size: 12px; font-weight: 600; opacity: .8; }
     .stat-value { font-size: 38px; font-weight: 800; line-height: 1; }
@@ -363,7 +363,7 @@ if ($studentSection) {
         <h2>My Schedule</h2>
         <div class="view-tabs">
           <button class="view-tab active" id="tabList"   onclick="switchView('list')">≡ List View</button>
-          <button class="view-tab"        id="tabWeekly" onclick="switchView('weekly')">▦ Weekly View</button>
+          <button class="view-tab"        id="tabWeekly" onclick="switchView('weekly')">▦ Registration Form</button>
         </div>
       </div>
 
@@ -431,15 +431,13 @@ if ($studentSection) {
       <!-- Weekly View — Temporarily Unavailable -->
       <div class="weekly-unavailable" id="weeklyView">
         <div class="weekly-icon">🗓️</div>
-        <h3>REGESTRATION FORM</h3>
+        <h3>REGISTRATION FORM</h3>
         <p>The weekly schedule view is currently under development.<br>Please use the List View to see your class schedule for now.</p>
         <span class="coming-soon-badge">🚧 Under Development</span>
       </div>
 
       <!-- Action Buttons -->
       <div class="action-bar">
-        <button type="button" class="action-btn btn-pdf">📄 Download Schedule (PDF)</button>
-        <button type="button" class="action-btn btn-share" style="border:1.5px solid var(--border);">🔗 Share Schedule</button>
        
       </div>
     </div>
